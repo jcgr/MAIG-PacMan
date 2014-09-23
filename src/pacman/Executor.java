@@ -24,7 +24,6 @@ import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
 import pacman.entries.jcgrPacMan.BTPacMan.BTPacMan;
-import pacman.entries.jcgrPacMan.behaviourtreePacMan.BehaviourPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
 import static pacman.game.Constants.*;
