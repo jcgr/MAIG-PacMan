@@ -76,6 +76,7 @@ public class NeuralNetwork
 	{
 		ArrayList<Double> weights = new ArrayList<Double>();
 		
+		// + 1 for the output layer
 		for (int layer = 0; layer < numberOfHiddenLayers + 1; layer++)
 		{
 			NeuronLayer currLayer = neuronLayers.get(layer);
@@ -133,7 +134,7 @@ public class NeuralNetwork
 		for (int layer = 0; layer < numberOfHiddenLayers + 1; layer++)
 		{
 			NeuronLayer currLayer = neuronLayers.get(layer);
-			
+
 			for (int neuron = 0; neuron < currLayer.numberOfNeurons; neuron++)
 			{
 				Neuron currNeuron = currLayer.neurons.get(neuron);
@@ -211,6 +212,8 @@ public class NeuralNetwork
 		
 		return outputs;
 	}
+	
+	
 	
 	/**
 	 * Calculates the sigmoid value of the given input.

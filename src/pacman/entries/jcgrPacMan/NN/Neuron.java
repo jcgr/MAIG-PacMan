@@ -35,11 +35,13 @@ public class Neuron
 		Random random = new Random();
 		this.numberOfInputs = numInputs + 1;
 		this.inputWeights = new ArrayList<Double>();
+		
+		double weight;
 
 		for (int i = 0; i < numberOfInputs + 1; i++)
 		{
 			// Random weight between 0.0 and 1.0
-			double weight = random.nextDouble();
+			weight = random.nextDouble();
 			
 			// Invert weight if nextInt is even
 			if (random.nextInt(100) % 2 == 0) 
