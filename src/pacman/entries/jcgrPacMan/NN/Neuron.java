@@ -3,16 +3,17 @@
  */
 package pacman.entries.jcgrPacMan.NN;
 
+import java.util.List;
 import java.util.ArrayList;
-import java.util.Random;
 
 /**
- * 
+ * A class that represents a neuron in a neural network.
  * 
  * @author Jacob
  */
 public class Neuron
 {
+	private final double ACTIVATION_RESPONSE = 1.0;
 
 	/**
 	 * The number of inputs the neuron takes.
@@ -20,36 +21,128 @@ public class Neuron
 	public int numberOfInputs;
 	
 	/**
-	 * The weights of the various inputs.
+	 * The inputs to this neuron.
 	 */
-	public ArrayList<Double> inputWeights;
+	private List<Synapse> inputs;
+
+	/**
+	 * The output of the neuron.
+	 */
+	private double output;
+
+	/**
+	 * The total weighted sum.
+	 */
+	private double weightedSum;
 	
 	/**
-	 * Creates a new instance of the Neuron class and initializes
-	 * its list of weights with random weights.
-	 * 
-	 * @param numInputs The amount of inputs the neuron shall take. 
+	 * The error of this neuron.
 	 */
-	public Neuron(int numInputs)
-	{
-		Random random = new Random();
-		this.numberOfInputs = numInputs + 1;
-		this.inputWeights = new ArrayList<Double>();
-		
-		double weight;
+	private double error;
+	
+	public int number;
 
-		for (int i = 0; i < numberOfInputs + 1; i++)
+	/**
+	 * Creates a new neuron with an empty list of inputs.
+	 */
+	public Neuron()
+	{
+		inputs = new ArrayList<Synapse>();
+		numberOfInputs = 0;
+	}
+
+	/**
+	 * Adds a new input to the neuron.
+	 * @param s The synapse input to add.
+	 */
+	public void addInput(Synapse s)
+	{
+		inputs.add(s);
+		numberOfInputs++;
+	}
+
+	/**
+	 * Calculated the weighted sum of the neuron.
+	 */
+	private void calculateWeightedSum()
+	{
+		weightedSum = 0;
+		for (Synapse synapse : inputs)
 		{
-			// Random weight between 0.0 and 1.0
-			weight = random.nextDouble();
-			
-			// Invert weight if nextInt is even
-			if (random.nextInt(100) % 2 == 0) 
-				weight *= -1.0;
-			
-			// Add weight
-			inputWeights.add(weight);
+			weightedSum += synapse.getWeight()
+					* synapse.getSourceNeuron().getOutput();
 		}
 	}
-	
+
+	/**
+	 * Calculated the weighted sum of the neuron and the output of the neuron.
+	 */
+	public void activate()
+	{
+		calculateWeightedSum();
+		this.output = Helper.sigmoidActivate(weightedSum);
+	}
+
+	/**
+	 * Gets the neuron's output value.
+	 * @return The output value.
+	 */
+	public double getOutput()
+	{
+		return this.output;
+	}
+
+	/**
+	 * Sets the neuron's output value.
+	 * @param output The new output value.
+	 */
+	public void setOutput(double output)
+	{
+		this.output = output;
+	}
+
+	/** 
+	 * Gets the error value of the neuron.
+	 * @return The error value.
+	 */
+	public double getError()
+	{
+		return error;
+	}
+
+	/**
+	 * Sets the neuron's error value.
+	 * @param error The new error value.
+	 */
+	public void setError(double error)
+	{
+		this.error = error;
+	}
+
+	/**
+	 * Gets the list of inputs for the neuron.
+	 * @return
+	 */
+	public List<Synapse> getInputs()
+	{
+		return this.inputs;
+	}
+
+	/**
+	 * Gets an array containing the weights to the neuron.
+	 * @return A double array of weights to the neuron.
+	 */
+	public double[] getWeights()
+	{
+		double[] weights = new double[inputs.size()];
+
+		int i = 0;
+		for (Synapse synapse : inputs)
+		{
+			weights[i] = synapse.getWeight();
+			i++;
+		}
+
+		return weights;
+	}
 }

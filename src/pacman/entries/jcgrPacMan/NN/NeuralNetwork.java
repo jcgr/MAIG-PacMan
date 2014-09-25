@@ -4,6 +4,7 @@
 package pacman.entries.jcgrPacMan.NN;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A class that represents an entire neural network.
@@ -12,225 +13,327 @@ import java.util.ArrayList;
  */
 public class NeuralNetwork
 {
-	
-	private final double BIAS = 1.0;
-	private final double ACTIVATION_RESPONSE = 1.0;
-	
-	private int numberOfInputs;
-	private int numberOfOutputs;
-	private int numberOfHiddenLayers;
-	private int neuronsPerHiddenLayer;
-	
-	private ArrayList<NeuronLayer> neuronLayers;
-	
 	/**
-	 * Creates a new instance of the NeuralNetwork class with the given
-	 * values.
-	 * 
-	 * @param numInputs The number of inputs.
-	 * @param numOutputs The number of outputs.
-	 * @param numHiddenLayers The number of hidden layers.
-	 * @param neuronsPerHiddenLyr The amoutn of neurons per hidden layer.
+	 * The layers of the network.
 	 */
-	public NeuralNetwork(int numInputs, int numOutputs, int numHiddenLayers, int neuronsPerHiddenLyr)
-	{
-		this.numberOfInputs = numInputs;
-		this.numberOfOutputs = numOutputs;
-		this.numberOfHiddenLayers = numHiddenLayers;
-		this.neuronsPerHiddenLayer = neuronsPerHiddenLyr;
-		
-		this.neuronLayers = new ArrayList<NeuronLayer>();
-		
-		this.createNetwork();
-	}
-	
-	/**
-	 * Sets up the neural network.
-	 */
-	public void createNetwork()
-	{
-		if (this.numberOfHiddenLayers > 0)
-		{
-			// Create first hidden layer
-			neuronLayers.add(new NeuronLayer(neuronsPerHiddenLayer,	numberOfInputs));
+	private List<NeuronLayer> layers;
 
-			// Create remaining (if any) hidden layers
-			for (int i = 0; i < numberOfHiddenLayers - 1; i++)
-				neuronLayers.add(new NeuronLayer(neuronsPerHiddenLayer, neuronsPerHiddenLayer));
-			
-			// Create output layer
-			neuronLayers.add(new NeuronLayer(numberOfOutputs, neuronsPerHiddenLayer));
-		}
-		else
-		{
-			neuronLayers.add(new NeuronLayer(numberOfOutputs, numberOfInputs));
-		}
-	}
-	
 	/**
-	 * Gets a list containing the weights of all neurons in the network.
-	 * 
-	 * @return A list containing the weight of all neurons in the network.
+	 * The input layer.
 	 */
-	public ArrayList<Double> getWeights()
-	{
-		ArrayList<Double> weights = new ArrayList<Double>();
-		
-		// + 1 for the output layer
-		for (int layer = 0; layer < numberOfHiddenLayers + 1; layer++)
-		{
-			NeuronLayer currLayer = neuronLayers.get(layer);
-			
-			for (int neuron = 0; neuron < currLayer.numberOfNeurons; neuron++)
-			{
-				Neuron currNeuron = currLayer.neurons.get(neuron);
-				
-				for (int weight = 0; weight < currNeuron.numberOfInputs; weight++)
-				{
-					weights.add(currNeuron.inputWeights.get(weight));
-				}
-			}
-		}
-		
-		return weights;
-	}
-	
-	/**
-	 * Sets the weights in the network to the values given.
-	 * 
-	 * @param newWeights A list containing the new weights for
-	 * 					 all neurons in the network.
-	 */
-	public void setWeights(ArrayList<Double> newWeights)
-	{
-		int currWeight = 0;
-		
-		for (int layer = 0; layer < numberOfHiddenLayers + 1; layer++)
-		{
-			NeuronLayer currLayer = neuronLayers.get(layer);
-			
-			for (int neuron = 0; neuron < currLayer.numberOfNeurons; neuron++)
-			{
-				Neuron currNeuron = currLayer.neurons.get(neuron);
-				
-				for (int weight = 0; weight < currNeuron.numberOfInputs; weight++)
-				{
-					currNeuron.inputWeights.set(weight, newWeights.get(currWeight));
-					currWeight++;
-				}
-			}
-		}
-	}
-	
-	/**
-	 * Gets the amount of weights in the network.
-	 * 
-	 * @return The number of weights in the network.
-	 */
-	public int getNumberOfWeights()
-	{
-		int weights = 0;
-		
-		for (int layer = 0; layer < numberOfHiddenLayers + 1; layer++)
-		{
-			NeuronLayer currLayer = neuronLayers.get(layer);
+	private NeuronLayer input;
 
-			for (int neuron = 0; neuron < currLayer.numberOfNeurons; neuron++)
+	/**
+	 * The output layer.
+	 */
+	private NeuronLayer output;
+
+	/**
+	 * Creates a new neural network with an empty
+	 * list of layers.
+	 */
+	public NeuralNetwork()
+	{
+		layers = new ArrayList<NeuronLayer>();
+	}
+
+	/**
+	 * Adds a layer to the neural network.
+	 * @param layer The layer to add.
+	 */
+	public void addLayer(NeuronLayer layer)
+	{
+		layers.add(layer);
+
+		// If it is the first layer being added,
+		// set it as the input layer as well.
+		if (layers.size() == 1)
+		{
+			input = layer;
+		}
+
+		if (layers.size() > 1)
+		{
+			// Clear the output flag on the previous output layer, but only if
+			// we have more than 1 layer
+			NeuronLayer previousLayer = layers.get(layers.size() - 2);
+			previousLayer.setNextLayer(layer);
+		}
+
+		// Set the output layer to the last layer in the list.
+		output = layers.get(layers.size() - 1);
+	}
+
+	/**
+	 * Set the input values in the input layer to the given values.
+	 * @param inputs The new input values.
+	 */
+	public void setInputs(double[] inputs)
+	{
+		if (input != null)
+		{
+
+			int biasCount = input.hasBias() ? 1 : 0;
+
+			if (input.getNeurons().size() - biasCount != inputs.length)
 			{
-				Neuron currNeuron = currLayer.neurons.get(neuron);
-				
-				for (int weight = 0; weight < currNeuron.numberOfInputs; weight++)
+				throw new IllegalArgumentException(
+						"The number of inputs must equal the number of neurons in the input layer");
+			}
+
+			else
+			{
+				List<Neuron> neurons = input.getNeurons();
+				for (int i = biasCount; i < neurons.size(); i++)
 				{
-					weights++;
+					neurons.get(i).setOutput(inputs[i - biasCount]);
 				}
 			}
 		}
-		
-		return weights;
 	}
 	
-	public ArrayList<Double> update(ArrayList<Double> inputs)
+	/**
+	 * Runs the neural network.
+	 */
+	public void run()
 	{
-		ArrayList<Double> outputs = new ArrayList<Double>();
-		
-		int currWeight = 0;
-		
-		// If there's an incorrect amount of inputs, return an empty list
-		// of outputs.
-		if (inputs.size() != numberOfInputs)
-			return outputs;
-		
-		// For each layer...
-		for (int layerNum = 0; layerNum < numberOfHiddenLayers + 1; layerNum++)
+		for (int i = 1; i < layers.size(); i++)
 		{
-			// If we're processing layer two or later, use the outputs 
-			// from previous layer as input for this layer.
-			if (layerNum > 0)
-			{
-				inputs = new ArrayList<Double>();
-				
-				for (int i = 0; i < outputs.size(); i++)
-					inputs.add(outputs.get(i));
-			}
-			
-			// Reset outputs so it can take new values.
-			outputs = new ArrayList<Double>();
-			currWeight = 0;
-			
-			// Load the layer for easier use
-			NeuronLayer currLayer = neuronLayers.get(layerNum);
-			
-			// For each neuron in the layer, calculate the sum of (inputs * weights),
-			// then give that value to the Sigmoid function to get the output for that
-			// neuron.
-			for (int neuronNum = 0; neuronNum < currLayer.numberOfNeurons; neuronNum++)
-			{
-				// Load the neuron for easier use.
-				Neuron currNeuron = currLayer.neurons.get(neuronNum);
-				
-				double totalInput = 0;
-				int neuronNumberOfInputs = currNeuron.numberOfInputs;
-				
-				// For each weight...
-				for (int weightNum = 0; weightNum < neuronNumberOfInputs - 1; weightNum++)
-				{
-					// Calculate the sum of the weight times the input
-					totalInput += currNeuron.inputWeights.get(weightNum) * inputs.get(currWeight);
-					currWeight++;
-				}
-				
-				// Add the bias
-				totalInput += currNeuron.inputWeights.get(neuronNumberOfInputs - 1) * BIAS;
-				
-				// Use the Sigmoid function to calculate the final output value,
-				// then add that to the list of outputs.
-				outputs.add(Sigmoid(totalInput, ACTIVATION_RESPONSE));
-				
-				currWeight = 0;
-			}
+			NeuronLayer layer = layers.get(i);
+			layer.feedForward();
 		}
-		
+	}
+
+	/**
+	 * Gets the output(s) for the neural network.
+	 * @return The output(s).
+	 */
+	public double[] getOutput()
+	{
+		double[] outputs = new double[output.getNeurons().size()];
+
+		int i = 0;
+		for (Neuron neuron : output.getNeurons())
+		{
+			outputs[i] = neuron.getOutput();
+			i++;
+		}
+
 		return outputs;
 	}
-	
-	
-	
+
 	/**
-	 * Calculates the sigmoid value of the given input.
-	 * 
-	 * @param inputValue The value of the input to calculate the sigmoid
-	 * 				 	 value for. 
-	 * @param response The number that controls the "shape" of the sigmoid
-	 * 				   curve.
-	 * @return The sigmoid value.
+	 * Resets all weights in the neural network.
 	 */
-	private double Sigmoid(double inputValue, double response)
+	public void reset()
 	{
-		double result = -inputValue / response;
-		result = 1.0 + Math.pow(Math.E, result);
-		result = 1.0 / result;
-		
-		return result;
+		for (NeuronLayer layer : layers)
+		{
+			for (Neuron neuron : layer.getNeurons())
+			{
+				for (Synapse synapse : neuron.getInputs())
+				{
+					synapse.setWeight((Math.random() * 1) - 0.5);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Gets the list of layers in the network.
+	 * @return
+	 */
+	public List<NeuronLayer> getLayers()
+	{
+		return layers;
+	}
+
+	/**
+	 * Gets all weights in the neural network.
+	 * @return A double array containing all weights in the neural network.
+	 */
+	public double[] getWeights()
+	{
+		List<Double> weights = new ArrayList<Double>();
+
+		// Get the weight from every synapse in every neuron in every layer.
+		for (NeuronLayer layer : layers)
+			for (Neuron neuron : layer.getNeurons())
+				for (Synapse synapse : neuron.getInputs())
+					weights.add(synapse.getWeight());
+
+		// Convert the list to an array.
+		double[] allWeights = new double[weights.size()];
+
+		int i = 0;
+		for (Double weight : weights)
+		{
+			allWeights[i] = weight;
+			i++;
+		}
+
+		return allWeights;
+	}
+
+	/**
+	 * Creates a perfect deep-copy of the neural network
+	 * @return A perfect copy of the neural network.
+	 */
+	public NeuralNetwork copy()
+	{
+		NeuralNetwork copy = new NeuralNetwork();
+
+		NeuronLayer previousLayer = null;
+		for (NeuronLayer layer : layers)
+		{
+			NeuronLayer layerCopy;
+
+			if (layer.hasBias())
+			{
+				Neuron bias = layer.getNeurons().get(0);
+				Neuron biasCopy = new Neuron();
+				biasCopy.setOutput(bias.getOutput());
+				layerCopy = new NeuronLayer(null, biasCopy);
+			}
+
+			else
+			{
+				layerCopy = new NeuronLayer();
+			}
+
+			layerCopy.setPreviousLayer(previousLayer);
+
+			int biasCount = layerCopy.hasBias() ? 1 : 0;
+
+			for (int i = biasCount; i < layer.getNeurons().size(); i++)
+			{
+				Neuron neuron = layer.getNeurons().get(i);
+
+				Neuron neuronCopy = new Neuron();
+				neuronCopy.setOutput(neuron.getOutput());
+				neuronCopy.setError(neuron.getError());
+
+				if (neuron.getInputs().size() == 0)
+				{
+					layerCopy.addNeuron(neuronCopy);
+				}
+
+				else
+				{
+					double[] weights = neuron.getWeights();
+					layerCopy.addNeuron(neuronCopy, weights);
+				}
+			}
+
+			copy.addLayer(layerCopy);
+			previousLayer = layerCopy;
+		}
+
+		return copy;
+	}
+
+	/**
+	 * Copies the weights from another neural network into the
+	 * current one, assuming they have the same size.
+	 * @param sourceNeuralNetwork The nn to copy weights from.
+	 */
+	public void copyWeightsFrom(NeuralNetwork sourceNeuralNetwork)
+	{
+		if (layers.size() != sourceNeuralNetwork.layers.size())
+		{
+			throw new IllegalArgumentException(
+					"Cannot copy weights. Number of layers do not match ("
+							+ sourceNeuralNetwork.layers.size()
+							+ " in source versus " + layers.size()
+							+ " in destination)");
+		}
+
+		int i = 0;
+		for (NeuronLayer sourceLayer : sourceNeuralNetwork.layers)
+		{
+			NeuronLayer destinationLayer = layers.get(i);
+
+			if (destinationLayer.getNeurons().size() != sourceLayer
+					.getNeurons().size())
+			{
+				throw new IllegalArgumentException(
+						"Number of neurons do not match in layer " + (i + 1)
+								+ "(" + sourceLayer.getNeurons().size()
+								+ " in source versus "
+								+ destinationLayer.getNeurons().size()
+								+ " in destination)");
+			}
+
+			int j = 0;
+			for (Neuron sourceNeuron : sourceLayer.getNeurons())
+			{
+				Neuron destinationNeuron = destinationLayer.getNeurons().get(j);
+
+				if (destinationNeuron.getInputs().size() != sourceNeuron
+						.getInputs().size())
+				{
+					throw new IllegalArgumentException(
+							"Number of inputs to neuron " + (j + 1)
+									+ " in layer " + (i + 1)
+									+ " do not match ("
+									+ sourceNeuron.getInputs().size()
+									+ " in source versus "
+									+ destinationNeuron.getInputs().size()
+									+ " in destination)");
+				}
+
+				int k = 0;
+				for (Synapse sourceSynapse : sourceNeuron.getInputs())
+				{
+					Synapse destinationSynapse = destinationNeuron.getInputs()
+							.get(k);
+
+					destinationSynapse.setWeight(sourceSynapse.getWeight());
+					k++;
+				}
+
+				j++;
+			}
+
+			i++;
+		}
 	}
 	
+	/*
+	 * public static NeuralNetwork backpropgate( ArrayList<ArrayList<Double>>
+	 * inputs, ArrayList<ArrayList<Double>> expectedOutputs, double
+	 * learningRate, NeuralNetwork network) {
+	 * 
+	 * boolean terminatingCondition = false;
+	 * 
+	 * if (inputs.size() != expectedOutputs.size()) {
+	 * System.out.println("FAILED!!!!"); return null; }
+	 * 
+	 * for (int trainingSet = 0; trainingSet < inputs.size(); trainingSet++) {
+	 * if (terminatingCondition) break;
+	 * 
+	 * HashMap<Neuron, Double> errors = new HashMap<Neuron, Double>();
+	 * 
+	 * // Propagate the inputs forward (4-9)
+	 * network.update(inputs.get(trainingSet));
+	 * 
+	 * // Backpropagate the errors // Output layer (11-12) NeuronLayer nLayer =
+	 * network.neuronLayers.get(network.neuronLayers .size() - 1); for (int
+	 * neuron = 0; neuron < nLayer.neurons.size(); neuron++) { Neuron n =
+	 * nLayer.neurons.get(neuron); double err = (n.output * (1.0 - n.output))
+	 * (expectedOutputs.get(trainingSet).get(neuron) - n.output); errors.put(n,
+	 * err); System.out.println(err); }
+	 * 
+	 * if (network.numberOfHiddenLayers > 0) { for (int l =
+	 * network.neuronLayers.size() - 2; l >= 0; l--) { nLayer =
+	 * network.neuronLayers.get(l);
+	 * 
+	 * for (int neuron = 0; neuron < nLayer.neurons.size(); neuron++) { Neuron n
+	 * = nLayer.neurons.get(neuron); double err = (n.output * (1.0 - n.output))
+	 * (expectedOutputs.get(trainingSet).get(neuron) - n.output); errors.put(n,
+	 * err); System.out.println(err); } } } }
+	 * 
+	 * return network; }
+	 */
+
 }

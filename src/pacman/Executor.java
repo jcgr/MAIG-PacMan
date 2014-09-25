@@ -13,6 +13,7 @@ import java.util.Random;
 import pacman.controllers.Controller;
 import pacman.controllers.HumanController;
 import pacman.controllers.KeyBoardInput;
+import dataRecording.DataCollectorController;
 import pacman.controllers.examples.AggressiveGhosts;
 import pacman.controllers.examples.Legacy;
 import pacman.controllers.examples.Legacy2TheReckoning;
@@ -24,6 +25,7 @@ import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
 import pacman.entries.jcgrPacMan.BTPacMan.BTPacMan;
+import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
 import static pacman.game.Constants.*;
@@ -66,7 +68,8 @@ public class Executor
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-		exec.runGameTimed(new BTPacMan(), new StarterGhosts(), visual);	
+//		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
+		exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);	
 		//*/
 		
 		/*
