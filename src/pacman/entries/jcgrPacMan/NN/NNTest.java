@@ -31,7 +31,7 @@ public class NNTest
 	private static void Test()
 	{
 		int numberOfInputs = 21;
-		int numberOfOutputs = 1;
+		int numberOfOutputs = 5;
 		int hiddenLayerNeurons = 10;
 		
 		nn = new NeuralNetwork();

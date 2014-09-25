@@ -54,10 +54,10 @@ public class Backpropagator
 
 			epoch++;
 			currentEpoch = epoch;
-			System.out.println();
-		} while (currentEpoch < 1000);
+//			System.out.println();
+		} while (currentEpoch < 500);
 		
-//		System.out.println(Math.abs(errors[epoch % samples]) + " - " + sum / samples);
+		System.out.println(Math.abs(errors[epoch % samples]) + " - " + sum / samples);
 	}
 
 	public double backpropagate(TrainingSet ts, double errorThreshold)
@@ -98,7 +98,7 @@ public class Backpropagator
 					s.setWeight(s.getWeight() + deltaWeight);
 					
 					change += deltaWeight;
-					System.out.println(n.number + " bias change: " + s.getWeight());
+//					System.out.println(n.number + " bias change: " + s.getWeight());
 				}
 				
 				for (int sIndex = bias; sIndex < synapses.size(); sIndex++)
@@ -114,7 +114,7 @@ public class Backpropagator
 					s.setWeight(s.getWeight() + deltaWeight);
 					
 					change += deltaWeight;
-					System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
+//					System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
 				}
 			}
 
@@ -143,7 +143,7 @@ public class Backpropagator
 						s.setWeight(s.getWeight() + deltaWeight);
 						
 						change += deltaWeight;
-						System.out.println(n.number + " bias change: " + s.getWeight());
+//						System.out.println(n.number + " bias change: " + s.getWeight());
 					}
 					
 					for (int sIndex = previousLayerBias; sIndex < synapses
@@ -160,7 +160,7 @@ public class Backpropagator
 						s.setWeight(s.getWeight() + deltaWeight);
 						
 						change += deltaWeight;
-						System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
+//						System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
 					}
 				}
 			}

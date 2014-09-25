@@ -16,46 +16,46 @@ public class PacManTrainingData extends TrainingData
 	public PacManTrainingData(DataTuple dt, int inputNodes, int outputNodes)
 	{
 		super(inputNodes, outputNodes);
-//		for (int i = 0; i < outputNodes; i++)
-//		{
-//			output[i] = 0;
-//		}
-//		switch (dt.DirectionChosen)
-//		{
-//		case UP:
-//			output[0] = 1.0;
-//			break;
-//		case RIGHT:
-//			output[1] = 1.0;
-//			break;
-//		case DOWN:
-//			output[2] = 1.0;
-//			break;
-//		case LEFT:
-//			output[3] = 1.0;
-//			break;
-//		case NEUTRAL:
-//			output[4] = 1.0;
-//			break;
-//		}
+		for (int i = 0; i < outputNodes; i++)
+		{
+			output[i] = 0;
+		}
 		switch (dt.DirectionChosen)
 		{
 		case UP:
-			output[0] = 0.25;
-			break;
-		case RIGHT:
-			output[0] = 0.50;
-			break;
-		case DOWN:
-			output[0] = 0.75;
-			break;
-		case LEFT:
 			output[0] = 1.0;
 			break;
+		case RIGHT:
+			output[1] = 1.0;
+			break;
+		case DOWN:
+			output[2] = 1.0;
+			break;
+		case LEFT:
+			output[3] = 1.0;
+			break;
 		case NEUTRAL:
-			output[0] = 0.0;
+			output[4] = 1.0;
 			break;
 		}
+//		switch (dt.DirectionChosen)
+//		{
+//		case UP:
+//			output[0] = 0.25;
+//			break;
+//		case RIGHT:
+//			output[0] = 0.50;
+//			break;
+//		case DOWN:
+//			output[0] = 0.75;
+//			break;
+//		case LEFT:
+//			output[0] = 1.0;
+//			break;
+//		case NEUTRAL:
+//			output[0] = 0.0;
+//			break;
+//		}
 		input[0] = dt.normalizeLevel(dt.mazeIndex);
 		input[1] = dt.normalizeLevel(dt.currentLevel);
 		input[2] = dt.normalizePosition(dt.pacmanPosition);
