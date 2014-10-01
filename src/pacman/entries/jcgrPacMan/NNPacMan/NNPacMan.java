@@ -32,9 +32,9 @@ public class NNPacMan extends Controller<MOVE>
 	
 	private void trainNN()
 	{
-		int numberOfInputs = 21;
+		int numberOfInputs = 14;
 		int numberOfOutputs = 5;
-		int hiddenLayerNeurons = 10;
+		int hiddenLayerNeurons = 3;
 		
 		nn = new NeuralNetwork();
 		
@@ -62,7 +62,7 @@ public class NNPacMan extends Controller<MOVE>
 		nn.addLayer(h1Layer);
 		nn.addLayer(output);
 		
-		nn.run();
+		nn.feedForward();
 		
 		double[] results = nn.getOutput();
 		for(double d : results)
@@ -82,40 +82,82 @@ public class NNPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-		double[] input = new double[21];
-		DataTuple dt = new DataTuple(game, MOVE.NEUTRAL);
+		double[] input = new double[14];
+		DataTuple dt = new DataTuple(game, lastMove);
 
-		input[0] = dt.normalizeLevel(dt.mazeIndex);
-		input[1] = dt.normalizeLevel(dt.currentLevel);
-		input[2] = dt.normalizePosition(dt.pacmanPosition);
-		input[3] = dt.pacmanLivesLeft;
-		input[4] = dt.normalizeCurrentScore(dt.currentScore);
-		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
-		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
-		input[7] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
-		input[8] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
+//		input[0] = dt.normalizeLevel(dt.mazeIndex);
+//		input[1] = dt.normalizeLevel(dt.currentLevel);
+		input[0] = dt.normalizePosition(dt.pacmanPosition);
+//		input[3] = dt.pacmanLivesLeft;
+//		input[4] = dt.normalizeCurrentScore(dt.currentScore);
+//		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
+//		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
+		input[1] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
+		input[2] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
+		
 		// Ghosts edible?
-		input[9] = dt.normalizeBoolean(dt.isBlinkyEdible);
-		input[10] = dt.normalizeBoolean(dt.isInkyEdible);
-		input[11] = dt.normalizeBoolean(dt.isPinkyEdible);
-		input[12] = dt.normalizeBoolean(dt.isSueEdible);
+		input[3] = dt.normalizeBoolean(dt.isBlinkyEdible);
+		input[4] = dt.normalizeBoolean(dt.isInkyEdible);
+		input[5] = dt.normalizeBoolean(dt.isPinkyEdible);
+		input[6] = dt.normalizeBoolean(dt.isSueEdible);
+		
 		// Ghost distance
-		input[13] = dt.normalizeDistance(dt.blinkyDist);
-		input[14] = dt.normalizeDistance(dt.inkyDist);
-		input[15] = dt.normalizeDistance(dt.pinkyDist);
-		input[16] = dt.normalizeDistance(dt.sueDist);
+		input[7] = dt.normalizeDistance(dt.blinkyDist);
+		input[8] = dt.normalizeDistance(dt.inkyDist);
+		input[9] = dt.normalizeDistance(dt.pinkyDist);
+		input[10] = dt.normalizeDistance(dt.sueDist);
+		
 		// Ghost direction
-		input[17] = PacManTrainingData.moveToDouble(dt.blinkyDir);
-		input[18] = PacManTrainingData.moveToDouble(dt.inkyDir);
-		input[19] = PacManTrainingData.moveToDouble(dt.pinkyDir);
-		input[20] = PacManTrainingData.moveToDouble(dt.sueDir);
+		input[10] = PacManTrainingData.moveToDouble(dt.blinkyDir);
+		input[11] = PacManTrainingData.moveToDouble(dt.inkyDir);
+		input[12] = PacManTrainingData.moveToDouble(dt.pinkyDir);
+		input[13] = PacManTrainingData.moveToDouble(dt.sueDir);
 		
 		nn.setInputs(input);
-		nn.run();
-		double output = nn.getOutput()[0];
+		nn.feedForward();
+
+		double[] output = nn.getOutput();
+		double finalOutput = -50000;
+		MOVE chosenMove = MOVE.NEUTRAL;
+		for (int i = 0; i < output.length; i++)
+		{
+			if (output[i] > finalOutput)
+			{
+				finalOutput = output[i];
+				switch (i)
+				{
+				case 0:
+					chosenMove = MOVE.UP;
+					break;
+
+				case 1:
+					chosenMove = MOVE.RIGHT;
+					break;
+
+				case 2:
+					chosenMove = MOVE.DOWN;
+					break;
+
+				case 3:
+					chosenMove = MOVE.LEFT;
+					break;
+
+				case 4:
+					chosenMove = MOVE.NEUTRAL;
+					break;
+				}
+			}
+		}
 		
-		System.out.println(output);
-		return doubleToMove(output);
+		System.out.println();
+		double[] results = nn.getOutput();
+		for(double d : results)
+			System.out.print(d + " ||| ");
+		System.out.println();
+		System.out.println(chosenMove.toString());
+		
+//		System.out.println(output);
+		return chosenMove;
 	}
 
 	public static MOVE doubleToMove(double d)

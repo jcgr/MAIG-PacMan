@@ -13,7 +13,7 @@ import dataRecording.DataTuple;
 
 public class Backpropagator
 {
-
+	public boolean log = false;
 	private NeuralNetwork neuralNetwork;
 	private double learningRate;
 	private double startingLearningRate;
@@ -38,14 +38,15 @@ public class Backpropagator
 		int samples = 25;
 		double[] errors = new double[samples];
 		
+		int learningIteration = 1;
+		
 		do
 		{
-			// learningRate = learningRate / (1 + (currentEpoch));
 			error = backpropagate(ts, errorThreshold);
 
-			sum -= Math.abs(errors[epoch % samples]);
+			sum -= (errors[epoch % samples]);
 			errors[epoch % samples] = error;
-			sum += Math.abs(errors[epoch % samples]);
+			sum += (errors[epoch % samples]);
 			
 			if (epoch > samples)
 			{
@@ -54,24 +55,42 @@ public class Backpropagator
 
 			epoch++;
 			currentEpoch = epoch;
+			
+			if (currentEpoch % 2500 == 0)
+			{
+				learningIteration++;
+				learningRate = 1.0 / learningIteration;
+			}
+			
+			if (currentEpoch % 25 == 0)
+//				System.out.println(currentEpoch + " = " + average + " ||| " + error);
+			
+			if (average < errorThreshold)
+			{
+				System.out.println("Woop, average (" + average + ") is lower than error after " + epoch + " epochs");
+				break;
+			}
 //			System.out.println();
-		} while (currentEpoch < 500);
+		} while (currentEpoch < 1000000);
+//		} while (average > errorThreshold);
 		
-		System.out.println(Math.abs(errors[epoch % samples]) + " - " + sum / samples);
+		System.out.println(average + " is average error " + learningRate);
+//		System.out.println(Math.abs(errors[epoch % samples]) + " - " + sum / samples);
 	}
 
 	public double backpropagate(TrainingSet ts, double errorThreshold)
 	{
 		double error = 0;
 		double change = 0;
+		
+//		System.out.println("Test");
 
 		for (int i = 0; i <= ts.highestIndexOfSet(); i++)
 		{
 			TrainingData td = ts.getSpecificData(i);
-
 			// Propagate the inputs forward
 			neuralNetwork.setInputs(td.getInput());
-			neuralNetwork.run();
+			neuralNetwork.feedForward();
 
 			// Backpropagate the errors
 			List<NeuronLayer> neuronLayers = neuralNetwork.getLayers();
@@ -98,7 +117,7 @@ public class Backpropagator
 					s.setWeight(s.getWeight() + deltaWeight);
 					
 					change += deltaWeight;
-//					System.out.println(n.number + " bias change: " + s.getWeight());
+					if (log) System.out.println(n.number + " bias change: " + s.getWeight());
 				}
 				
 				for (int sIndex = bias; sIndex < synapses.size(); sIndex++)
@@ -114,7 +133,7 @@ public class Backpropagator
 					s.setWeight(s.getWeight() + deltaWeight);
 					
 					change += deltaWeight;
-//					System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
+					if (log) System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
 				}
 			}
 
@@ -143,7 +162,7 @@ public class Backpropagator
 						s.setWeight(s.getWeight() + deltaWeight);
 						
 						change += deltaWeight;
-//						System.out.println(n.number + " bias change: " + s.getWeight());
+						if (log) System.out.println(n.number + " bias change: " + s.getWeight());
 					}
 					
 					for (int sIndex = previousLayerBias; sIndex < synapses
@@ -160,7 +179,7 @@ public class Backpropagator
 						s.setWeight(s.getWeight() + deltaWeight);
 						
 						change += deltaWeight;
-//						System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
+						if (log) System.out.println("w" + sn.number + "" + n.number + " value: " + s.getWeight());
 					}
 				}
 			}
@@ -178,7 +197,8 @@ public class Backpropagator
 		}
 
 //		System.out.println(change);
-		return change;
+//		return Math.abs(change);
+		return Math.abs(error);
 
 	}
 
@@ -190,7 +210,7 @@ public class Backpropagator
 
 		double sum = 0;
 		for (int i = 0; i < expected.length; i++)
-				sum += Math.pow(expected[i] - actual[i], 2);
+				sum += Math.abs(expected[i] - actual[i]);
 
 		return sum / 2;
 	}

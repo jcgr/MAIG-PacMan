@@ -56,30 +56,34 @@ public class PacManTrainingData extends TrainingData
 //			output[0] = 0.0;
 //			break;
 //		}
-		input[0] = dt.normalizeLevel(dt.mazeIndex);
-		input[1] = dt.normalizeLevel(dt.currentLevel);
-		input[2] = dt.normalizePosition(dt.pacmanPosition);
-		input[3] = dt.pacmanLivesLeft;
-		input[4] = dt.normalizeCurrentScore(dt.currentScore);
-		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
-		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
-		input[7] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
-		input[8] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
+		
+//		input[0] = dt.normalizeLevel(dt.mazeIndex);
+//		input[1] = dt.normalizeLevel(dt.currentLevel);
+		input[0] = dt.normalizePosition(dt.pacmanPosition);
+//		input[3] = dt.pacmanLivesLeft;
+//		input[4] = dt.normalizeCurrentScore(dt.currentScore);
+//		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
+//		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
+		input[1] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
+		input[2] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
+		
 		// Ghosts edible?
-		input[9] = dt.normalizeBoolean(dt.isBlinkyEdible);
-		input[10] = dt.normalizeBoolean(dt.isInkyEdible);
-		input[11] = dt.normalizeBoolean(dt.isPinkyEdible);
-		input[12] = dt.normalizeBoolean(dt.isSueEdible);
+		input[3] = dt.normalizeBoolean(dt.isBlinkyEdible);
+		input[4] = dt.normalizeBoolean(dt.isInkyEdible);
+		input[5] = dt.normalizeBoolean(dt.isPinkyEdible);
+		input[6] = dt.normalizeBoolean(dt.isSueEdible);
+		
 		// Ghost distance
-		input[13] = dt.normalizeDistance(dt.blinkyDist);
-		input[14] = dt.normalizeDistance(dt.inkyDist);
-		input[15] = dt.normalizeDistance(dt.pinkyDist);
-		input[16] = dt.normalizeDistance(dt.sueDist);
+		input[7] = dt.normalizeDistance(dt.blinkyDist);
+		input[8] = dt.normalizeDistance(dt.inkyDist);
+		input[9] = dt.normalizeDistance(dt.pinkyDist);
+		input[10] = dt.normalizeDistance(dt.sueDist);
+		
 		// Ghost direction
-		input[17] = moveToDouble(dt.blinkyDir);
-		input[18] = moveToDouble(dt.inkyDir);
-		input[19] = moveToDouble(dt.pinkyDir);
-		input[20] = moveToDouble(dt.sueDir);
+		input[10] = moveToDouble(dt.blinkyDir);
+		input[11] = moveToDouble(dt.inkyDir);
+		input[12] = moveToDouble(dt.pinkyDir);
+		input[13] = moveToDouble(dt.sueDir);
 	}
 
 	public static double moveToDouble(MOVE move)

@@ -3,7 +3,11 @@
  */
 package pacman.entries.jcgrPacMan.NN;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,6 +31,11 @@ public class NeuralNetwork
 	 * The output layer.
 	 */
 	private NeuronLayer output;
+	
+	/**
+	 * The name of the NN.
+	 */
+	private String name;
 
 	/**
 	 * Creates a new neural network with an empty
@@ -95,7 +104,7 @@ public class NeuralNetwork
 	/**
 	 * Runs the neural network.
 	 */
-	public void run()
+	public void feedForward()
 	{
 		for (int i = 1; i < layers.size(); i++)
 		{
@@ -173,6 +182,11 @@ public class NeuralNetwork
 		}
 
 		return allWeights;
+	}
+	
+	public void setName(String newName)
+	{
+		this.name = newName;
 	}
 
 	/**
@@ -299,41 +313,40 @@ public class NeuralNetwork
 		}
 	}
 	
-	/*
-	 * public static NeuralNetwork backpropgate( ArrayList<ArrayList<Double>>
-	 * inputs, ArrayList<ArrayList<Double>> expectedOutputs, double
-	 * learningRate, NeuralNetwork network) {
-	 * 
-	 * boolean terminatingCondition = false;
-	 * 
-	 * if (inputs.size() != expectedOutputs.size()) {
-	 * System.out.println("FAILED!!!!"); return null; }
-	 * 
-	 * for (int trainingSet = 0; trainingSet < inputs.size(); trainingSet++) {
-	 * if (terminatingCondition) break;
-	 * 
-	 * HashMap<Neuron, Double> errors = new HashMap<Neuron, Double>();
-	 * 
-	 * // Propagate the inputs forward (4-9)
-	 * network.update(inputs.get(trainingSet));
-	 * 
-	 * // Backpropagate the errors // Output layer (11-12) NeuronLayer nLayer =
-	 * network.neuronLayers.get(network.neuronLayers .size() - 1); for (int
-	 * neuron = 0; neuron < nLayer.neurons.size(); neuron++) { Neuron n =
-	 * nLayer.neurons.get(neuron); double err = (n.output * (1.0 - n.output))
-	 * (expectedOutputs.get(trainingSet).get(neuron) - n.output); errors.put(n,
-	 * err); System.out.println(err); }
-	 * 
-	 * if (network.numberOfHiddenLayers > 0) { for (int l =
-	 * network.neuronLayers.size() - 2; l >= 0; l--) { nLayer =
-	 * network.neuronLayers.get(l);
-	 * 
-	 * for (int neuron = 0; neuron < nLayer.neurons.size(); neuron++) { Neuron n
-	 * = nLayer.neurons.get(neuron); double err = (n.output * (1.0 - n.output))
-	 * (expectedOutputs.get(trainingSet).get(neuron) - n.output); errors.put(n,
-	 * err); System.out.println(err); } } } }
-	 * 
-	 * return network; }
-	 */
+	public void persist()
+	{
+		String fileName = name.replaceAll(" ", "") + "-" + new Date().getTime()
+				+ ".net";
+		System.out
+				.println("Writing trained neural network to file " + fileName);
+		ObjectOutputStream objectOutputStream = null;
+		try
+		{
+			objectOutputStream = new ObjectOutputStream(new FileOutputStream(
+					fileName));
+			objectOutputStream.writeObject(this);
+		}
+		catch (IOException e)
+		{
+			System.out.println("Could not write to file: " + fileName);
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				if (objectOutputStream != null)
+				{
+					objectOutputStream.flush();
+					objectOutputStream.close();
+				}
+			}
+			catch (IOException e)
+			{
+				System.out.println("Could not write to file: " + fileName);
+				e.printStackTrace();
+			}
+		}
+	}
 
 }
