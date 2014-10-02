@@ -67,8 +67,8 @@ public class NNTest
 		double[] in3 = {1, 0};
 		double[] in4 = {1, 1};
 
-		double[] out1 = {1};
-		double[] out2 = {0};
+		double[] out1 = {0.95};
+		double[] out2 = {0.05};
 		
 		TrainingSet ts = new TrainingSet();
 		TrainingData td1 = new TrainingData(2, 1);
@@ -157,8 +157,8 @@ public class NNTest
 		double[] in3 = {1, 0};
 		double[] in4 = {1, 1};
 
-		double[] out1 = {1};
-		double[] out2 = {0};
+		double[] out1 = {0.95};
+		double[] out2 = {0.05};
 		
 		TrainingSet ts = new TrainingSet();
 		TrainingData td1 = new TrainingData(2, 1);

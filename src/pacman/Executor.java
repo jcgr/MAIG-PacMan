@@ -68,8 +68,8 @@ public class Executor
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-//		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
-		exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);	
+		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
+//		exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);	
 		//*/
 		
 		/*

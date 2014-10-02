@@ -210,8 +210,8 @@ public class Backpropagator
 
 		double sum = 0;
 		for (int i = 0; i < expected.length; i++)
-				sum += Math.abs(expected[i] - actual[i]);
+			sum += Math.abs(expected[i] - actual[i]);
 
-		return sum / 2;
+		return sum;
 	}
 }
