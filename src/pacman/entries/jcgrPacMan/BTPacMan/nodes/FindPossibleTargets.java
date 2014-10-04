@@ -39,7 +39,7 @@ public class FindPossibleTargets extends Action
 	public STATUS run(Context context)
 	{	
 		pcContext = (PacManContext)context;
-		
+
 		ArrayList<Integer> targets = new ArrayList<Integer>();
 		
 		boolean powerPillActive = false;

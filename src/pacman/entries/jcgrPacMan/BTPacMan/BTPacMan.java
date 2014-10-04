@@ -9,12 +9,11 @@ import pacman.entries.jcgrPacMan.BTPacMan.nodes.EatEdibleGhost;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.FindPathToTarget;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.FindPossibleTargets;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.FleeFromGhost;
-import pacman.entries.jcgrPacMan.BTPacMan.nodes.RemoveGhostIndices;
 import pacman.game.Game;
 import pacman.game.Constants.MOVE;
 
 /**
- * 
+ * A PacMan AI based on behaviour trees.
  * 
  * @author Jacob
  */
@@ -40,7 +39,6 @@ public class BTPacMan extends Controller<MOVE>
 		
 		Sequence chasePill = new Sequence("ChasePill");
 		chasePill.addNode(new FindPossibleTargets("FindPossibleTargetsNode", true));
-		chasePill.addNode(new RemoveGhostIndices("RemoveGhostIndices"));
 		chasePill.addNode(new FindPathToTarget("FindPathToTarget"));
 		
 		root.addNode(ghostBehaviour);

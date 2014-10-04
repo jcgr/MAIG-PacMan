@@ -37,7 +37,7 @@ public class EatEdibleGhost extends Action
 	public STATUS run(Context context)
 	{
 		pcContext = (PacManContext)context;
-		
+
 		STATUS result = STATUS.FAILURE;
 		GHOST targetGhost = null;
 		int distanceToGhost, distanceToClosestGhost = Integer.MAX_VALUE;

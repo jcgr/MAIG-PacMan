@@ -10,7 +10,7 @@ import pacman.entries.jcgrPacMan.BTPacMan.PacManContext;
 import pacman.game.Constants.DM;
 
 /**
- * 
+ * Finds a path to the closest pill.
  * 
  * @author Jacob
  */
@@ -23,12 +23,10 @@ public class FindPathToTarget extends Action
 	public FindPathToTarget(String name)
 	{
 		super(name);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
-	 * @param context
-	 * @return
+	 * @return SUCCESS no matter what, as it can always find a way to a pill.
 	 * @see pacman.entries.jcgrPacMan.BT.Node#run(pacman.entries.jcgrPacMan.BT.Context)
 	 */
 	@Override

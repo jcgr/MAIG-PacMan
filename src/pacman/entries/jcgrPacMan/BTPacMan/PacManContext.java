@@ -10,7 +10,7 @@ import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 /**
- * 
+ * The context for the PacMan game.
  * 
  * @author Jacob
  */
@@ -22,7 +22,7 @@ public class PacManContext extends Context
 	
 	public int currentPacManIndex;
 	
-	public final int MIN_GHOST_DISTANCE, EAT_GHOST_DISTANCE;
+	public final int MIN_GHOST_DISTANCE, FLEE_SEARCH_RANGE, EAT_GHOST_DISTANCE;
 	
 	public int[] activePills;
 	
@@ -36,7 +36,8 @@ public class PacManContext extends Context
 	{
 		nextMove = MOVE.NEUTRAL;
 		MIN_GHOST_DISTANCE = 10;
-		EAT_GHOST_DISTANCE = 30;
+		FLEE_SEARCH_RANGE = MIN_GHOST_DISTANCE * 5;
+		EAT_GHOST_DISTANCE = 25;
 		activePills = new int[0];
 		activePowerPills = new int[0];
 		targetNodeIndices = new int[0];

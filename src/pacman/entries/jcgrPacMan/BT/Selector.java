@@ -6,7 +6,8 @@ package pacman.entries.jcgrPacMan.BT;
 import java.util.ArrayList;
 
 /**
- * 
+ * A selector node, which returns SUCCESS if any of its subnodes
+ * return SUCCESS.
  * 
  * @author Jacob
  */

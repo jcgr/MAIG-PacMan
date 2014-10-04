@@ -72,7 +72,7 @@ public abstract class Node
 	 * Runs the node's logic.
 	 * Override to implement actual logic for a node.
 	 * 
-	 * @param context The context of the node.
+	 * @param context The context of the game.
 	 * @return The status of the node after running.
 	 */
 	public abstract STATUS run(Context context);
