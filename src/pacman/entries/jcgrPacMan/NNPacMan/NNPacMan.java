@@ -62,7 +62,7 @@ public class NNPacMan extends Controller<MOVE>
 		nn.addLayer(h1Layer);
 		nn.addLayer(output);
 		
-		nn.feedForward();
+		nn.activate();
 		
 		double[] results = nn.getOutput();
 		for(double d : results)
@@ -114,7 +114,7 @@ public class NNPacMan extends Controller<MOVE>
 		input[13] = PacManTrainingData.moveToDouble(dt.sueDir);
 		
 		nn.setInputs(input);
-		nn.feedForward();
+		nn.activate();
 
 		double[] output = nn.getOutput();
 		double finalOutput = -50000;

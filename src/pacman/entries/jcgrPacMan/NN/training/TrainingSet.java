@@ -6,7 +6,7 @@ package pacman.entries.jcgrPacMan.NN.training;
 import java.util.ArrayList;
 
 /**
- * 
+ * A set of training data.
  * 
  * @author Jacob
  */

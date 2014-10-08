@@ -109,6 +109,7 @@ public class TreeNode
 			double uctValue = ((child.totalValue) 
 					+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((Math.log(this.visits))
 					/ child.visits)));
+			uctValue += MCTS.EXPLORATION_CONSTANT * MCTS.random.nextDouble();
 			
 			if (uctValue > bestValue)
 			{

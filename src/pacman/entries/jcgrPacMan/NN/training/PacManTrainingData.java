@@ -7,7 +7,7 @@ import pacman.game.Constants.MOVE;
 import dataRecording.DataTuple;
 
 /**
- * 
+ * Training data representing pacman
  * 
  * @author Jacob
  */
@@ -17,45 +17,26 @@ public class PacManTrainingData extends TrainingData
 	{
 		super(inputNodes, outputNodes);
 		for (int i = 0; i < outputNodes; i++)
-		{
 			output[i] = 0;
-		}
+		
 		switch (dt.DirectionChosen)
 		{
-		case UP:
-			output[0] = 1.0;
-			break;
-		case RIGHT:
-			output[1] = 1.0;
-			break;
-		case DOWN:
-			output[2] = 1.0;
-			break;
-		case LEFT:
-			output[3] = 1.0;
-			break;
-		case NEUTRAL:
-			output[4] = 1.0;
-			break;
+			case UP:
+				output[0] = 1.0;
+				break;
+			case RIGHT:
+				output[1] = 1.0;
+				break;
+			case DOWN:
+				output[2] = 1.0;
+				break;
+			case LEFT:
+				output[3] = 1.0;
+				break;
+			case NEUTRAL:
+				output[4] = 1.0;
+				break;
 		}
-//		switch (dt.DirectionChosen)
-//		{
-//		case UP:
-//			output[0] = 0.25;
-//			break;
-//		case RIGHT:
-//			output[0] = 0.50;
-//			break;
-//		case DOWN:
-//			output[0] = 0.75;
-//			break;
-//		case LEFT:
-//			output[0] = 1.0;
-//			break;
-//		case NEUTRAL:
-//			output[0] = 0.0;
-//			break;
-//		}
 		
 //		input[0] = dt.normalizeLevel(dt.mazeIndex);
 //		input[1] = dt.normalizeLevel(dt.currentLevel);
@@ -90,43 +71,34 @@ public class PacManTrainingData extends TrainingData
 	{
 		switch (move)
 		{
-		case NEUTRAL:
-			return 0.00;
-		case UP:
-			return 0.25;
-		case RIGHT:
-			return 0.5;
-		case DOWN:
-			return 0.75;
-		case LEFT:
-			return 1.0;
-		default:
-			return -1.0;
+			case NEUTRAL:
+				return 0.00;
+			case UP:
+				return 0.25;
+			case RIGHT:
+				return 0.5;
+			case DOWN:
+				return 0.75;
+			case LEFT:
+				return 1.0;
+			default:
+				return -1.0;
 		}
 	}
 
 	public static MOVE doubleToMove(double d)
 	{
 		if (d >= 0.00 && d < 0.25)
-		{
 			return MOVE.NEUTRAL;
-		}
 		if (d >= 0.25 && d < 0.50)
-		{
 			return MOVE.UP;
-		}
 		if (d >= 0.50 && d < 0.75)
-		{
 			return MOVE.RIGHT;
-		}
 		if (d >= 0.75 && d < 1.0)
-		{
 			return MOVE.DOWN;
-		}
 		if (d == 1.0)
-		{
 			return MOVE.LEFT;
-		}
+		
 		return MOVE.NEUTRAL;
 	}
 }

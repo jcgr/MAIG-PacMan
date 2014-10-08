@@ -62,14 +62,17 @@ public class MCTS
 		
 		if (bc != null)
 		{
-//			System.out.println(tree.children.size());
-			for (TreeNode tn : tree.children)
+			if (tree.children.size() > 1)
 			{
-				System.out.println(tn.moveTo + " - Visited: " + tn.visits + " - Value: " + tn.totalValue);
+				// System.out.println(tree.children.size());
+				for (TreeNode tn : tree.children)
+				{
+					System.out.println(tn.moveTo + " - Visited: " + tn.visits + " - Value: " + tn.totalValue);
+				}
+				System.out.println(tree.bestChild().moveTo);
+
+				System.out.println("--------------------");
 			}
-			System.out.println(tree.bestChild().moveTo);
-			
-			System.out.println("--------------------");
 		}
 		
 		return tree.bestChild();

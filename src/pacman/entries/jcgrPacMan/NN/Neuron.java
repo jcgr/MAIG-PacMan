@@ -38,6 +38,9 @@ public class Neuron
 	 */
 	private double error;
 	
+	/**
+	 * The number of the neuron (used for debugging)
+	 */
 	public int number;
 
 	/**
@@ -66,10 +69,7 @@ public class Neuron
 	{
 		weightedSum = 0;
 		for (Synapse synapse : inputs)
-		{
-			weightedSum += synapse.getWeight()
-					* synapse.getSourceNeuron().getOutput();
-		}
+			weightedSum += synapse.getWeight() * synapse.getSourceNeuron().getOutput();
 	}
 
 	/**

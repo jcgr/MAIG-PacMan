@@ -35,9 +35,6 @@ public class NNTest
 	
 	private static void AND()
 	{
-		int numberOfInputs = 2;
-		int numberOfOutputs = 1;
-		
 		nn = new NeuralNetwork("AND");
 
 		Neuron bias = new Neuron();
@@ -60,7 +57,7 @@ public class NNTest
 		
 		nn.addLayer(inputLayer);
 		nn.addLayer(outputLayer);
-		nn.feedForward();
+		nn.activate();
 
 		double[] in1 = {0, 0};
 		double[] in2 = {0, 1};
@@ -92,32 +89,28 @@ public class NNTest
 		bp.train(ts);
 		
 		nn.setInputs(in1);
-		nn.feedForward();
+		nn.activate();
 		double result = nn.getOutput()[0];
 		System.out.println("AND (0, 0) = " + result);
 		
 		nn.setInputs(in2);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("AND (1, 0) = " + result);
 		
 		nn.setInputs(in3);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("AND (0, 1) = " + result);
 		
 		nn.setInputs(in4);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("AND (1, 1) = " + result);
 	}
 	
 	private static void XOR()
 	{
-		int numberOfInputs = 2;
-		int h1Neurons = 2;
-		int numberOfOutputs = 1;
-		
 		nn = new NeuralNetwork("XOR");
 
 		Neuron bias = new Neuron();
@@ -150,7 +143,7 @@ public class NNTest
 		nn.addLayer(inputLayer);
 		nn.addLayer(h1Layer);
 		nn.addLayer(outputLayer);
-		nn.feedForward();
+		nn.activate();
 
 		double[] in1 = {0, 0};
 		double[] in2 = {0, 1};
@@ -182,74 +175,24 @@ public class NNTest
 		bp.train(ts);
 		
 		nn.setInputs(in1);
-		nn.feedForward();
+		nn.activate();
 		double result = nn.getOutput()[0];
 		System.out.println("XOR (0, 0) = " + result);
 		
 		nn.setInputs(in2);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("XOR (1, 0) = " + result);
 		
 		nn.setInputs(in3);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("XOR (0, 1) = " + result);
 		
 		nn.setInputs(in4);
-		nn.feedForward();
+		nn.activate();
 		result = nn.getOutput()[0];
 		System.out.println("XOR (1, 1) = " + result);
-	}
-	
-	private static void Test()
-	{
-		int numberOfInputs = 14;
-		int numberOfOutputs = 5;
-		int h1LayerNeurons = 3;
-		int h2LayerNeurons = 3;
-		
-		nn = new NeuralNetwork("Test");
-		
-		Neuron bias = new Neuron();
-		bias.setOutput(1.0);
-		
-		DataTuple[] dta = DataSaverLoader.LoadPacManData();
-		TrainingSet ts = new TrainingSet();
-		for (int i = 0; i < dta.length; i++)
-			ts.AddTrainingData(new PacManTrainingData(dta[i], numberOfInputs, numberOfOutputs));
-		
-		NeuronLayer input = new NeuronLayer(bias);
-		for (int i = 0; i < numberOfInputs; i++)
-			input.addNeuron(new Neuron());
-		
-		NeuronLayer h1Layer = new NeuronLayer(input, bias);
-		for (int i = 0; i < h1LayerNeurons; i++)
-			h1Layer.addNeuron(new Neuron());
-		
-		NeuronLayer h2Layer = new NeuronLayer(input, bias);
-		for (int i = 0; i < h2LayerNeurons; i++)
-			h2Layer.addNeuron(new Neuron());
-		
-		NeuronLayer output = new NeuronLayer(h1Layer);
-		for (int i = 0; i < numberOfOutputs; i++)
-			output.addNeuron(new Neuron());
-		
-		nn.addLayer(input);
-		nn.addLayer(h1Layer);
-		nn.addLayer(output);
-		
-		nn.feedForward();
-		
-//		double[] results = nn.getOutput();
-//		for(double d : results)
-//			System.out.println(d);
-		
-		Backpropagator bp = new Backpropagator(nn);
-		bp.train(ts);
-		
-		//nn.setInputs();
-//		Backpropagator bp = new Backpropagator(nn, 1.0, ts, 0.05);
 	}
 
 	/**
@@ -313,7 +256,7 @@ public class NNTest
 		nn.addLayer(hLayer);
 		nn.addLayer(outputLayer);
 
-		nn.feedForward();
+		nn.activate();
 
 		TrainingSet ts = new TrainingSet();
 		TrainingData td = new TrainingData(3, 1);
@@ -328,9 +271,7 @@ public class NNTest
 		bp.train(ts);
 		
 		nn.setInputs(in);
-		nn.feedForward();
+		nn.activate();
 		System.out.println(nn.getOutput()[0]);
-//		b.bpTest(nn, 0.9, ts, 0.05);
-//		Backpropagator b = new Backpropagator(nn, 0.9, ts, 0);
 	}
 }

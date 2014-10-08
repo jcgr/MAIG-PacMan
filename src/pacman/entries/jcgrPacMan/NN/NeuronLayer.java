@@ -92,7 +92,7 @@ public class NeuronLayer
 		if (previousLayer != null)
 			for (Neuron previousLayerNeuron : previousLayer.getNeurons())
 				// Initialize with a random weight between 1 and -1
-				neuron.addInput(new Synapse(previousLayerNeuron, (Math.random() * 1) - 0.5));
+				neuron.addInput(new Synapse(previousLayerNeuron, (Math.random() * 2.0) - 1.0));
 	}
 
 	/**
@@ -108,20 +108,16 @@ public class NeuronLayer
 		// and every neuron in the previous layer using the given weights.
 		if (previousLayer != null)
 		{
-
 			if (previousLayer.getNeurons().size() != weights.length)
-			{
 				throw new IllegalArgumentException(
-						"The number of weights supplied must be equal to the number of neurons in the previous layer");
-			}
+						"The number of weights supplied must be equal to the "
+						+ "number of neurons in the previous layer");
 			else
 			{
 				List<Neuron> previousLayerNeurons = previousLayer.getNeurons();
 				for (int i = 0; i < previousLayerNeurons.size(); i++)
-				{
 					neuron.addInput(new Synapse(previousLayerNeurons.get(i),
 							weights[i]));
-				}
 			}
 		}
 	}
@@ -130,14 +126,12 @@ public class NeuronLayer
 	 * Activates every neuron in the layer, making them
 	 * calculate their weighted sum and their output.
 	 */
-	public void feedForward()
+	public void activate()
 	{
 		int biasCount = hasBias() ? 1 : 0;
 
 		for (int i = biasCount; i < neurons.size(); i++)
-		{
 			neurons.get(i).activate();
-		}
 	}
 
 	/**

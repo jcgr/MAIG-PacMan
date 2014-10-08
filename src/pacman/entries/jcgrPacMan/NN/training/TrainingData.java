@@ -4,7 +4,7 @@
 package pacman.entries.jcgrPacMan.NN.training;
 
 /**
- * 
+ * The training data layout for the neural network.
  * 
  * @author Jacob
  */
