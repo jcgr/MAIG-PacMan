@@ -24,13 +24,13 @@ public class TreeNode
 	public MOVE moveTo;
 	public TreeNode parent;
 	public int depth;
-	
+
 	private Game gs;
 	public List<TreeNode> children;
 	private List<MOVE> actions;
 	private boolean[] actionsTried;
 	private EnumMap<GHOST, MOVE> ghostMoves;
-	
+
 	public TreeNode(MOVE moveTo, TreeNode parent, Game gs, int depth, boolean root)
 	{
 		this.moveTo = moveTo;
@@ -39,11 +39,13 @@ public class TreeNode
 		this.depth = depth;
 		this.children = new ArrayList<TreeNode>();
 		this.actions = new ArrayList<MOVE>();
-		
-		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()); 
+
+		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
+				, gs.getPacmanLastMoveMade()
+				);
 		for (MOVE m : possibleMoves)
 			actions.add(m);
-		
+
 		actionsTried = new boolean[actions.size()];
 		for (int action = 0; action < actions.size(); action++)
 			actionsTried[action] = false;
@@ -57,45 +59,56 @@ public class TreeNode
 
 			gs.advanceGame(this.moveTo, ghostMoves);
 		}
-		
+
 		this.totalValue = 0.0;
 		this.visits = 1;
 	}
-	
+
 	public TreeNode expand()
 	{
-		boolean expanded = false;
-		TreeNode expandedNode = null;
-		
-		while (!expanded)
-		{
-			int nextTry = MCTS.random.nextInt(actions.size());
-			if (!actionsTried[nextTry])
-			{
-				expandedNode = new TreeNode(actions.get(nextTry), this, gs.copy(), this.depth + 1, false);
-				children.add(expandedNode);
-				actionsTried[nextTry] = true;
-				expanded = true;
-				MCTS.expansions++;
-			}
-		}
-		
+		MOVE[] untriedActions = getUntriedActions();
+		MOVE nextTry = untriedActions[MCTS.random.nextInt(untriedActions.length)];
+		// System.out.println(nextTry.toString() + " was added");
+		TreeNode expandedNode = new TreeNode(nextTry, this, gs.copy(), this.depth + 1, false);
+		children.add(expandedNode);
+
+		for (int i = 0; i < actions.size(); i++)
+			if (actions.get(i) == nextTry)
+				actionsTried[i] = true;
+
 		return expandedNode;
 	}
-	
+
+	private MOVE[] getUntriedActions()
+	{
+		List<MOVE> utActions = new ArrayList<MOVE>();
+
+		for (int i = 0; i < actions.size(); i++)
+			if (!actionsTried[i])
+				utActions.add(actions.get(i));
+
+		MOVE[] result = new MOVE[utActions.size()];
+		for (int i = 0; i < utActions.size(); i++)
+			result[i] = utActions.get(i);
+
+		return result;
+	}
+
 	/**
 	 * Selects the node's best child (randomly chosen if none of them have been visited)
+	 * 
 	 * @return
 	 */
 	public TreeNode bestChild()
 	{
 		TreeNode selected = null;
 		double bestValue = -100000.0;
-		
+
 		for (TreeNode child : children)
 		{
-			double uctValue = ((child.totalValue / child.visits) 
-					+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((2 * Math.log(this.visits)) / child.visits)));
+			double uctValue = ((child.totalValue) 
+					+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((Math.log(this.visits))
+					/ child.visits)));
 			
 			if (uctValue > bestValue)
 			{
@@ -103,88 +116,62 @@ public class TreeNode
 				bestValue = uctValue;
 			}
 		}
-		
+
 		return selected;
 	}
-	
-	public double simulation()
+
+	public double getReward()
 	{
 		double result = 0.0;
-		TreeNode tempNode = this;
-		Game tempGame = gs.copy();
-		
-		while (!tempNode.isTerminalNode())
-		{
-			MOVE[] possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex());
-			MOVE nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
-			
-			EnumMap<GHOST, MOVE> validGhostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
-			for (GHOST ghost : GHOST.values())
-			{
-				if(tempGame.getGhostEdibleTime(ghost) == 0 
-					&& tempGame.getGhostLairTime(ghost) == 0)
-				{
-				possibleMoves = tempGame.getPossibleMoves(tempGame.getGhostCurrentNodeIndex(ghost));
-				MOVE nextGMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
-				validGhostMoves.put(ghost, nextGMove);
-				}
-			}
-			
-			tempGame.advanceGame(nextPMMove, validGhostMoves);
-			tempNode = new TreeNode(nextPMMove, tempNode, tempGame, tempNode.depth + 1, false);
-//			result += tempNode.simulation();
-			System.out.print(tempNode.getReward() + " | ");
-		}
-		System.out.println();
-		System.out.print(result);
-		
-//		return result;
-		return tempNode.getReward();
-	}
-	
-	public double getReward()
-	{		
-		if (gs.wasPacManEaten())
-			return (-100000.0);
-		
-		if (gs.wasPowerPillEaten())
-		{
-			boolean ppActive = false;
-			for (GHOST ghost : GHOST.values())
-				if (gs.getGhostEdibleTime(ghost) > 0)
-					ppActive = true;
-			
-			if (ppActive)
-				return -500.0;
-			else
-				return 500.0;
-		}
 
-		for (GHOST ghost : GHOST.values())
-			if (gs.wasGhostEaten(ghost))
-				return (gs.getGhostCurrentEdibleScore() / 2);
-		
-		if (gs.wasPillEaten())
-			return 10.0;
-			
-		
-		return 0;
+		// Was PacMan eaten
+		if (gs.wasPacManEaten())
+		{
+//			System.out.println("Retard coming through, going " + this.moveTo);
+			result += -1.0;
+		}
+		else
+			result += 1.0;
+
+//		if (!MCTS.survival)
+//		{
+			// Normalizing pills eaten
+			double min = 0;
+			double max = MCTS.pillsAtRoot;
+			double eaten = max - gs.getActivePillsIndices().length;
+
+			double normalized = (eaten - min) / (max - min);
+			result *= normalized;
+//		}
+
+		return result;
 	}
-	
+
 	public void updateValues(double value)
 	{
 		this.visits++;
 		this.totalValue += value;
+		// System.out.print("(" + visits + ", " + totalValue + ") - ");
 	}
 	
+	public Game getGameState()
+	{
+		return this.gs;
+	}
+
 	public boolean isTerminalNode()
 	{
-		return (depth > MCTS.MAX_DEPTH
-				|| gs.wasPacManEaten()
-				|| (gs.getActivePillsIndices().length == 0
-					&& gs.getActivePowerPillsIndices().length == 0));
+		return (gs.wasPacManEaten() 
+				|| depthCheck()
+				|| (gs.getActivePillsIndices().length == 0 
+				&& gs.getActivePowerPillsIndices().length == 0));
 	}
 	
+	private boolean depthCheck()
+	{
+		return depth > MCTS.MAX_DEPTH;
+	}
+
 	public boolean isFullyExpanded()
 	{
 		return (children.size() == actions.size());

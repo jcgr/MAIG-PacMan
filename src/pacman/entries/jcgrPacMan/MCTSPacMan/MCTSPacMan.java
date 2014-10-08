@@ -31,10 +31,10 @@ public class MCTSPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-//		List<TreeNode> moves = mcts.search();
-//		System.out.println(mcts == null);
 		TreeNode tn = mcts.search(game);
 		MOVE move = tn == null ? MOVE.NEUTRAL : tn.moveTo;
+//		System.out.println(move.toString());
+//		System.out.println();
 		return move;
 	}
 }

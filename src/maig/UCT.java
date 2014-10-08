@@ -88,9 +88,14 @@ public class UCT {
             //rootNode is the one we are working with 
             //and we apply the exploitation of it to find the child with the highest average reward
             int bestAction = 0;
-            BestChild(1);
-            bestAction = currentNode.parentAction;
-            System.out.println(bestAction);
+//            System.out.println(rootNode.children.size());
+            for (Node n : currentNode.children)
+            {
+    			System.out.println(n.parentAction + " | " + n.timesvisited + " - " + n.reward);
+            }
+          System.out.println(bestAction);
+          BestChild(0);
+          bestAction = currentNode.parentAction;
             
             return bestAction;
 	}
@@ -105,9 +110,7 @@ public class UCT {
 		while (!TerminalState(currentNode.state.clone()))
 		{
 			if (!FullyExpanded(currentNode))
-			{
 				Expand();
-			}
 			else
 				BestChild(1);
 		}
@@ -149,7 +152,13 @@ public class UCT {
 	 * @return
 	 */
 	private boolean FullyExpanded(Node nt) {
-		return nt.children.size() == 4;
+		int t = 0;
+		for (int i = 0; i < 4; i++)
+		{
+			if (maze.isValidGhostMove(i))
+				t++;
+		}
+		return nt.children.size() == t;
 	}
 
 	/**
@@ -173,8 +182,7 @@ public class UCT {
 
 		for (Node child : nt.children)
 		{
-			double uctValue = ((child.reward / child.timesvisited) 
-					+ (c * Math.sqrt((2 * Math.log(nt.timesvisited)) / child.timesvisited)));
+			double uctValue = UCTvalue(child, c);
 			
 			if (uctValue > bestValue)
 			{
@@ -193,7 +201,8 @@ public class UCT {
 	 * @return
 	 */
 	private float UCTvalue(Node n, float c) {
-		return 0;
+		return (float) ((n.reward / n.timesvisited) 
+				+ (c * Math.sqrt((2 * Math.log(currentNode.timesvisited)) / n.timesvisited)));
 	}
 
 	/**
