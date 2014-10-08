@@ -23,18 +23,20 @@ public class TreeNode
 	public double totalValue;
 	public MOVE moveTo;
 	public TreeNode parent;
+	public int depth;
 	
 	private Game gs;
-	private List<TreeNode> children;
+	public List<TreeNode> children;
 	private List<MOVE> actions;
 	private boolean[] actionsTried;
 	private EnumMap<GHOST, MOVE> ghostMoves;
 	
-	public TreeNode(MOVE moveTo, TreeNode parent, Game gs, boolean root)
+	public TreeNode(MOVE moveTo, TreeNode parent, Game gs, int depth, boolean root)
 	{
 		this.moveTo = moveTo;
 		this.parent = parent;
 		this.gs = gs;
+		this.depth = depth;
 		this.children = new ArrayList<TreeNode>();
 		this.actions = new ArrayList<MOVE>();
 		
@@ -60,22 +62,25 @@ public class TreeNode
 		this.visits = 1;
 	}
 	
-	public void expand()
+	public TreeNode expand()
 	{
-//		boolean expanded = false;
-//		
-//		while (!expanded)
-//		{
-//			int nextTry = MCTS.random.nextInt(actions.size());
-//			if (!actionsTried[nextTry])
-//			{
-//				children.add(new TreeNode(actions.get(nextTry), gs.copy(), false));
-//				expanded = true;
-//			}
-//		}
+		boolean expanded = false;
+		TreeNode expandedNode = null;
 		
-		for (MOVE m : actions)
-			children.add(new TreeNode(m, this, gs.copy(), false));
+		while (!expanded)
+		{
+			int nextTry = MCTS.random.nextInt(actions.size());
+			if (!actionsTried[nextTry])
+			{
+				expandedNode = new TreeNode(actions.get(nextTry), this, gs.copy(), this.depth + 1, false);
+				children.add(expandedNode);
+				actionsTried[nextTry] = true;
+				expanded = true;
+				MCTS.expansions++;
+			}
+		}
+		
+		return expandedNode;
 	}
 	
 	/**
@@ -84,28 +89,20 @@ public class TreeNode
 	 */
 	public TreeNode bestChild()
 	{
-//		boolean anyChildVisited = false;
 		TreeNode selected = null;
 		double bestValue = -100000.0;
 		
-//		for (TreeNode child : children)
-//			if (child.visits > 0)
-//				anyChildVisited = true;
-//			
-//		if (!anyChildVisited)
-//			selected = children.get(MCTS.random.nextInt(this.children.size()));
-//		else
-			for (TreeNode child : children)
+		for (TreeNode child : children)
+		{
+			double uctValue = ((child.totalValue / child.visits) 
+					+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((2 * Math.log(this.visits)) / child.visits)));
+			
+			if (uctValue > bestValue)
 			{
-				double uctValue = ((child.value() + child.totalValue) 
-						+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((Math.log(this.visits)) / child.visits)));
-				
-				if (uctValue > bestValue)
-				{
-					selected = child;
-					bestValue = uctValue;
-				}
+				selected = child;
+				bestValue = uctValue;
 			}
+		}
 		
 		return selected;
 	}
@@ -113,22 +110,42 @@ public class TreeNode
 	public double simulation()
 	{
 		double result = 0.0;
-		Game tempGame;
+		TreeNode tempNode = this;
+		Game tempGame = gs.copy();
 		
-		for (MOVE m : actions)
+		while (!tempNode.isTerminalNode())
 		{
-			tempGame = gs;
-			TreeNode tempNode = new TreeNode(m, this, tempGame, false);
-			result += tempNode.value();
+			MOVE[] possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex());
+			MOVE nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
+			
+			EnumMap<GHOST, MOVE> validGhostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
+			for (GHOST ghost : GHOST.values())
+			{
+				if(tempGame.getGhostEdibleTime(ghost) == 0 
+					&& tempGame.getGhostLairTime(ghost) == 0)
+				{
+				possibleMoves = tempGame.getPossibleMoves(tempGame.getGhostCurrentNodeIndex(ghost));
+				MOVE nextGMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
+				validGhostMoves.put(ghost, nextGMove);
+				}
+			}
+			
+			tempGame.advanceGame(nextPMMove, validGhostMoves);
+			tempNode = new TreeNode(nextPMMove, tempNode, tempGame, tempNode.depth + 1, false);
+//			result += tempNode.simulation();
+			System.out.print(tempNode.getReward() + " | ");
 		}
+		System.out.println();
+		System.out.print(result);
 		
-		return result;
+//		return result;
+		return tempNode.getReward();
 	}
 	
-	public double value()
+	public double getReward()
 	{		
 		if (gs.wasPacManEaten())
-			return (-10000.0);
+			return (-100000.0);
 		
 		if (gs.wasPowerPillEaten())
 		{
@@ -151,7 +168,7 @@ public class TreeNode
 			return 10.0;
 			
 		
-		return 0.0;
+		return 0;
 	}
 	
 	public void updateValues(double value)
@@ -160,15 +177,12 @@ public class TreeNode
 		this.totalValue += value;
 	}
 	
-	public boolean isLeafNode()
-	{
-//		return this.isFullyExpanded();
-		return (this.children.size() == 0);
-	}
-	
 	public boolean isTerminalNode()
 	{
-		return (gs.wasPacManEaten());
+		return (depth > MCTS.MAX_DEPTH
+				|| gs.wasPacManEaten()
+				|| (gs.getActivePillsIndices().length == 0
+					&& gs.getActivePowerPillsIndices().length == 0));
 	}
 	
 	public boolean isFullyExpanded()

@@ -18,9 +18,12 @@ import pacman.game.Constants.MOVE;
  */
 public class MCTSPacMan extends Controller<MOVE>
 {
+
+	MCTS mcts;
 	
 	public MCTSPacMan()
 	{
+		mcts = new MCTS();
 	}
 	
 	/* (non-Javadoc)
@@ -28,8 +31,10 @@ public class MCTSPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-		MCTS mcts = new MCTS(game);
-		List<TreeNode> moves = mcts.search();
-		return moves.get(1).moveTo;
+//		List<TreeNode> moves = mcts.search();
+//		System.out.println(mcts == null);
+		TreeNode tn = mcts.search(game);
+		MOVE move = tn == null ? MOVE.NEUTRAL : tn.moveTo;
+		return move;
 	}
 }

@@ -17,11 +17,13 @@ import pacman.game.Game;
  */
 public class MCTS
 {
-	static final double EXPLORATION_CONSTANT = 0.5;
-	static final int MAX_DEPTH = 20;
+	static final double EXPLORATION_CONSTANT = 1;
+	static final int MAX_DEPTH = 10;
 	static Random random = new Random();
 	
-	private final int maxIterations = 40;
+	static int expansions;
+	
+	private final int maxIterations = 20;
 	private int currIteration;
 	private List<MOVE> actions;
 	private TreeNode tree;
@@ -32,64 +34,66 @@ public class MCTS
 	{
 	}
 	
-	public List<TreeNode> search(Game gs)
+	public TreeNode search(Game gs)
 	{
+		expansions = 0;
 		this.gs = gs.copy();
-		this.tree = new TreeNode(MOVE.NEUTRAL, null, gs, true);
-		
-		List<TreeNode> bestChoice = null;
+		this.tree = new TreeNode(MOVE.NEUTRAL, null, gs, 0, true);
 		currIteration = 0;
+		
+//		List<TreeNode> bestChoice = null;
+		TreeNode v = null;
+		double delta = 0.0;
 		
 		while (!terminate(currIteration))
 		{
-			treePolicy();
-//			bestChoice = attemptOne();			
+			v = treePolicy(tree);
+			delta = defaultPolicy(v);
+			backup(v, delta);
+			System.out.println();
 			currIteration++;
 		}
-		
-		return bestChoice;
+//		System.out.println("Test");
+
+//		System.out.print(tree.children.size() + " | ");
+//		for (TreeNode tn : tree.children)
+//		{
+//			System.out.print(tn.moveTo + " - ");
+//		}
+//		System.out.println(tree.bestChild().moveTo);
+		return tree.bestChild();
 	}
 	
-	private void treePolicy()
+	private TreeNode treePolicy(TreeNode v)
 	{
-		currentNode = tree;
+		currentNode = v;
 		
-	}
-	
-	private List<TreeNode> attemptOne()
-	{
-		List<TreeNode> visited = new ArrayList<TreeNode>();
-		TreeNode currNode = tree;
-		
-		visited.add(tree);
-		
-		// 1. Selection
-		// Find the most valuable leaf node (can be root, if it has not
-		// been expanded yet)
-		while (!currNode.isLeafNode())
+		while (!currentNode.isTerminalNode())
 		{
-			currNode = currNode.bestChild();
-			visited.add(currNode);
+			if (!currentNode.isFullyExpanded())
+				return currentNode.expand();
+			else
+				currentNode = currentNode.bestChild();
 		}
 		
-		// 2. Expansion
-		// Expand the node and select its best child.
-		currNode.expand();
-		TreeNode newNode = currNode.bestChild();
-		visited.add(newNode);
+		return currentNode;
+	}
+	
+	private double defaultPolicy(TreeNode v)
+	{
+		return v.simulation();
+	}
+	
+	private void backup(TreeNode v, double delta)
+	{
+		TreeNode currNode = v;
 		
-		// 3. Simulation
-		// 
-		double valueChange = newNode.simulation();
-//		double valueChange = 0.0;
-//		for (TreeNode tn : visited)
-//			valueChange += tn.value();
-		
-		// 4. Backpropagate
-		for (TreeNode tn : visited)
-			tn.updateValues(valueChange);
-		
-		return visited;
+		while (currNode != null)
+		{
+			currNode.visits += 1;
+			currNode.totalValue += delta;
+			currNode = currNode.parent;
+		}
 	}
 	
 	private boolean terminate(int i)
