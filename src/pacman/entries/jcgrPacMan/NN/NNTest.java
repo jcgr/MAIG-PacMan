@@ -38,7 +38,7 @@ public class NNTest
 		int numberOfInputs = 2;
 		int numberOfOutputs = 1;
 		
-		nn = new NeuralNetwork();
+		nn = new NeuralNetwork("AND");
 
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -88,8 +88,8 @@ public class NNTest
 		ts.AddTrainingData(td3);
 		ts.AddTrainingData(td4);
 		
-		Backpropagator bp = new Backpropagator(nn, 1.0);
-		bp.train(ts, 0.05);
+		Backpropagator bp = new Backpropagator(nn);
+		bp.train(ts);
 		
 		nn.setInputs(in1);
 		nn.feedForward();
@@ -118,7 +118,7 @@ public class NNTest
 		int h1Neurons = 2;
 		int numberOfOutputs = 1;
 		
-		nn = new NeuralNetwork();
+		nn = new NeuralNetwork("XOR");
 
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -177,10 +177,9 @@ public class NNTest
 		ts.AddTrainingData(td2);
 		ts.AddTrainingData(td3);
 		ts.AddTrainingData(td4);
-		
-		Backpropagator bp = new Backpropagator(nn, 1.0);
-//		bp.log = true;
-		bp.train(ts, 0.05);
+	
+		Backpropagator bp = new Backpropagator(nn);
+		bp.train(ts);
 		
 		nn.setInputs(in1);
 		nn.feedForward();
@@ -210,7 +209,7 @@ public class NNTest
 		int h1LayerNeurons = 3;
 		int h2LayerNeurons = 3;
 		
-		nn = new NeuralNetwork();
+		nn = new NeuralNetwork("Test");
 		
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -246,8 +245,8 @@ public class NNTest
 //		for(double d : results)
 //			System.out.println(d);
 		
-		Backpropagator bp = new Backpropagator(nn, 1.0);
-		bp.train(ts, 0.05);
+		Backpropagator bp = new Backpropagator(nn);
+		bp.train(ts);
 		
 		//nn.setInputs();
 //		Backpropagator bp = new Backpropagator(nn, 1.0, ts, 0.05);
@@ -260,7 +259,7 @@ public class NNTest
 	private static void classificationByBackpropagationTest()
 	{
 		// Initialize nn
-		nn = new NeuralNetwork();
+		nn = new NeuralNetwork("cBBT");
 
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -325,8 +324,8 @@ public class NNTest
 		td.setData(in, out);
 		ts.AddTrainingData(td);
 
-		Backpropagator b = new Backpropagator(nn, 0.9);
-		b.train(ts, 0.05);
+		Backpropagator bp = new Backpropagator(nn);
+		bp.train(ts);
 		
 		nn.setInputs(in);
 		nn.feedForward();

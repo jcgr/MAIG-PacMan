@@ -25,6 +25,7 @@ import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
 import pacman.entries.jcgrPacMan.BTPacMan.BTPacMan;
+import pacman.entries.jcgrPacMan.MCTSPacMan.MCTSPacMan;
 import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
@@ -47,39 +48,41 @@ public class Executor
 	public static void main(String[] args)
 	{
 		Executor exec=new Executor();
+		boolean visual = true;
 
-		/*
-		//run multiple games in batch mode - good for testing.
-		int numTrials=10;
-		exec.runExperiment(new StarterPacMan(),new RandomGhosts(),numTrials);
-		 */
 		
-		/*
+		//run multiple games in batch mode - good for testing.
+//		int numTrials=100;
+//		exec.runExperiment(new BTPacMan(),new StarterGhosts(),numTrials);
+		 
+		
+		
 		//run a game in synchronous mode: game waits until controllers respond.
-		int delay=5;
-		boolean visual=true;
-		exec.runGame(new RandomPacMan(),new RandomGhosts(),visual,delay);
-  		 */
+//		int delay=5;
+//		boolean visual=true;
+//		exec.runGame(new BTPacMan(),new RandomGhosts(),visual,delay);
+  		 
 		
 		///*
 		//run the game in asynchronous mode.
-		boolean visual = true;
+//		boolean visual = true;
 //		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
 //		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
 //		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 //		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
 //		exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
-		exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
+//		exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
+		exec.runGameTimed(new MCTSPacMan(),new StarterGhosts(),visual);
 		//*/
 		
-		/*
+		
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.
 		//time limit of DELAY ms still applies.
-		boolean visual=true;
-		boolean fixedTime=false;
-		exec.runGameTimedSpeedOptimised(new RandomPacMan(),new RandomGhosts(),fixedTime,visual);
-		*/
+//		boolean visual=true;
+//		boolean fixedTime=false;
+//		exec.runGameTimedSpeedOptimised(new BTPacMan(),new RandomGhosts(),fixedTime,visual);
+		
 		
 		/*
 		//run game in asynchronous mode and record it to file for replay at a later stage.

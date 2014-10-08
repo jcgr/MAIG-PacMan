@@ -13,8 +13,6 @@ import java.util.ArrayList;
  */
 public class Neuron
 {
-	private final double ACTIVATION_RESPONSE = 1.0;
-
 	/**
 	 * The number of inputs the neuron takes.
 	 */

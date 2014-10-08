@@ -40,22 +40,55 @@ public class NeuralNetwork
 	/**
 	 * Creates a new neural network with an empty
 	 * list of layers.
+	 * @param name The name of the neural network (used for logging/saving)
 	 */
-	public NeuralNetwork()
+	public NeuralNetwork(String name)
 	{
 		layers = new ArrayList<NeuronLayer>();
+		this.name = name;
 	}
 
-	/**
-	 * Adds a layer to the neural network.
-	 * @param layer The layer to add.
-	 */
+	public static NeuralNetwork createSingleHiddenLayerNeuralNetwork(String name, int numberOfInputNodes,
+			int numberOfOutputNodes, int numberOfHiddenNodes)
+	{
+		NeuralNetwork nn = new NeuralNetwork(name);
+
+		Neuron bias = new Neuron();
+		bias.setOutput(1.0);
+
+		// Create input layer
+		NeuronLayer inputLayer = new NeuronLayer(bias);
+		for (int i = 0; i < numberOfInputNodes; i++)
+		{
+			inputLayer.addNeuron(new Neuron());
+		}
+
+		// Create hidden layer
+		NeuronLayer hiddenLayer = new NeuronLayer(inputLayer, bias);
+		for (int i = 0; i < numberOfHiddenNodes; i++)
+		{
+			hiddenLayer.addNeuron(new Neuron());
+		}
+
+		// Create output layer
+		NeuronLayer outputLayer = new NeuronLayer(hiddenLayer);
+		for (int i = 0; i < numberOfOutputNodes; i++)
+		{
+			outputLayer.addNeuron(new Neuron());
+		}
+
+		// Add layers to network
+		nn.addLayer(inputLayer);
+		nn.addLayer(hiddenLayer);
+		nn.addLayer(outputLayer);
+
+		return nn;
+	}
+
 	public void addLayer(NeuronLayer layer)
 	{
 		layers.add(layer);
 
-		// If it is the first layer being added,
-		// set it as the input layer as well.
 		if (layers.size() == 1)
 		{
 			input = layer;
@@ -63,20 +96,15 @@ public class NeuralNetwork
 
 		if (layers.size() > 1)
 		{
-			// Clear the output flag on the previous output layer, but only if
+			// clear the output flag on the previous output layer, but only if
 			// we have more than 1 layer
 			NeuronLayer previousLayer = layers.get(layers.size() - 2);
 			previousLayer.setNextLayer(layer);
 		}
 
-		// Set the output layer to the last layer in the list.
 		output = layers.get(layers.size() - 1);
 	}
 
-	/**
-	 * Set the input values in the input layer to the given values.
-	 * @param inputs The new input values.
-	 */
 	public void setInputs(double[] inputs)
 	{
 		if (input != null)
@@ -86,8 +114,7 @@ public class NeuralNetwork
 
 			if (input.getNeurons().size() - biasCount != inputs.length)
 			{
-				throw new IllegalArgumentException(
-						"The number of inputs must equal the number of neurons in the input layer");
+				throw new IllegalArgumentException("The number of inputs must equal the number of neurons in the input layer");
 			}
 
 			else
@@ -100,23 +127,7 @@ public class NeuralNetwork
 			}
 		}
 	}
-	
-	/**
-	 * Runs the neural network.
-	 */
-	public void feedForward()
-	{
-		for (int i = 1; i < layers.size(); i++)
-		{
-			NeuronLayer layer = layers.get(i);
-			layer.feedForward();
-		}
-	}
 
-	/**
-	 * Gets the output(s) for the neural network.
-	 * @return The output(s).
-	 */
 	public double[] getOutput()
 	{
 		double[] outputs = new double[output.getNeurons().size()];
@@ -131,9 +142,20 @@ public class NeuralNetwork
 		return outputs;
 	}
 
-	/**
-	 * Resets all weights in the neural network.
-	 */
+	public void feedForward()
+	{
+		for (int i = 1; i < layers.size(); i++)
+		{
+			NeuronLayer layer = layers.get(i);
+			layer.feedForward();
+		}
+	}
+
+	public List<NeuronLayer> getLayers()
+	{
+		return layers;
+	}
+
 	public void reset()
 	{
 		for (NeuronLayer layer : layers)
@@ -148,30 +170,24 @@ public class NeuralNetwork
 		}
 	}
 
-	/**
-	 * Gets the list of layers in the network.
-	 * @return
-	 */
-	public List<NeuronLayer> getLayers()
-	{
-		return layers;
-	}
-
-	/**
-	 * Gets all weights in the neural network.
-	 * @return A double array containing all weights in the neural network.
-	 */
 	public double[] getWeights()
 	{
+
 		List<Double> weights = new ArrayList<Double>();
 
-		// Get the weight from every synapse in every neuron in every layer.
 		for (NeuronLayer layer : layers)
-			for (Neuron neuron : layer.getNeurons())
-				for (Synapse synapse : neuron.getInputs())
-					weights.add(synapse.getWeight());
+		{
 
-		// Convert the list to an array.
+			for (Neuron neuron : layer.getNeurons())
+			{
+
+				for (Synapse synapse : neuron.getInputs())
+				{
+					weights.add(synapse.getWeight());
+				}
+			}
+		}
+
 		double[] allWeights = new double[weights.size()];
 
 		int i = 0;
@@ -183,23 +199,15 @@ public class NeuralNetwork
 
 		return allWeights;
 	}
-	
-	public void setName(String newName)
-	{
-		this.name = newName;
-	}
 
-	/**
-	 * Creates a perfect deep-copy of the neural network
-	 * @return A perfect copy of the neural network.
-	 */
 	public NeuralNetwork copy()
 	{
-		NeuralNetwork copy = new NeuralNetwork();
+		NeuralNetwork copy = new NeuralNetwork(this.name + "_copy");
 
 		NeuronLayer previousLayer = null;
 		for (NeuronLayer layer : layers)
 		{
+
 			NeuronLayer layerCopy;
 
 			if (layer.hasBias())
@@ -246,20 +254,31 @@ public class NeuralNetwork
 		return copy;
 	}
 
-	/**
-	 * Copies the weights from another neural network into the
-	 * current one, assuming they have the same size.
-	 * @param sourceNeuralNetwork The nn to copy weights from.
-	 */
+	public void setWeights(double[] weights)
+	{
+		int w = 0;
+
+		for (NeuronLayer layer : layers)
+		{
+
+			for (Neuron neuron : layer.getNeurons())
+			{
+
+				for (Synapse synapse : neuron.getInputs())
+				{
+					synapse.setWeight(weights[w]);
+					w++;
+				}
+			}
+		}
+	}
+
 	public void copyWeightsFrom(NeuralNetwork sourceNeuralNetwork)
 	{
 		if (layers.size() != sourceNeuralNetwork.layers.size())
 		{
-			throw new IllegalArgumentException(
-					"Cannot copy weights. Number of layers do not match ("
-							+ sourceNeuralNetwork.layers.size()
-							+ " in source versus " + layers.size()
-							+ " in destination)");
+			throw new IllegalArgumentException("Cannot copy weights. Number of layers do not match ("
+					+ sourceNeuralNetwork.layers.size() + " in source versus " + layers.size() + " in destination)");
 		}
 
 		int i = 0;
@@ -267,15 +286,11 @@ public class NeuralNetwork
 		{
 			NeuronLayer destinationLayer = layers.get(i);
 
-			if (destinationLayer.getNeurons().size() != sourceLayer
-					.getNeurons().size())
+			if (destinationLayer.getNeurons().size() != sourceLayer.getNeurons().size())
 			{
-				throw new IllegalArgumentException(
-						"Number of neurons do not match in layer " + (i + 1)
-								+ "(" + sourceLayer.getNeurons().size()
-								+ " in source versus "
-								+ destinationLayer.getNeurons().size()
-								+ " in destination)");
+				throw new IllegalArgumentException("Number of neurons do not match in layer " + (i + 1) + "("
+						+ sourceLayer.getNeurons().size() + " in source versus " + destinationLayer.getNeurons().size()
+						+ " in destination)");
 			}
 
 			int j = 0;
@@ -283,24 +298,17 @@ public class NeuralNetwork
 			{
 				Neuron destinationNeuron = destinationLayer.getNeurons().get(j);
 
-				if (destinationNeuron.getInputs().size() != sourceNeuron
-						.getInputs().size())
+				if (destinationNeuron.getInputs().size() != sourceNeuron.getInputs().size())
 				{
-					throw new IllegalArgumentException(
-							"Number of inputs to neuron " + (j + 1)
-									+ " in layer " + (i + 1)
-									+ " do not match ("
-									+ sourceNeuron.getInputs().size()
-									+ " in source versus "
-									+ destinationNeuron.getInputs().size()
-									+ " in destination)");
+					throw new IllegalArgumentException("Number of inputs to neuron " + (j + 1) + " in layer " + (i + 1)
+							+ " do not match (" + sourceNeuron.getInputs().size() + " in source versus "
+							+ destinationNeuron.getInputs().size() + " in destination)");
 				}
 
 				int k = 0;
 				for (Synapse sourceSynapse : sourceNeuron.getInputs())
 				{
-					Synapse destinationSynapse = destinationNeuron.getInputs()
-							.get(k);
+					Synapse destinationSynapse = destinationNeuron.getInputs().get(k);
 
 					destinationSynapse.setWeight(sourceSynapse.getWeight());
 					k++;
@@ -312,41 +320,10 @@ public class NeuralNetwork
 			i++;
 		}
 	}
-	
-	public void persist()
+
+	public String getName()
 	{
-		String fileName = name.replaceAll(" ", "") + "-" + new Date().getTime()
-				+ ".net";
-		System.out
-				.println("Writing trained neural network to file " + fileName);
-		ObjectOutputStream objectOutputStream = null;
-		try
-		{
-			objectOutputStream = new ObjectOutputStream(new FileOutputStream(
-					fileName));
-			objectOutputStream.writeObject(this);
-		}
-		catch (IOException e)
-		{
-			System.out.println("Could not write to file: " + fileName);
-			e.printStackTrace();
-		}
-		finally
-		{
-			try
-			{
-				if (objectOutputStream != null)
-				{
-					objectOutputStream.flush();
-					objectOutputStream.close();
-				}
-			}
-			catch (IOException e)
-			{
-				System.out.println("Could not write to file: " + fileName);
-				e.printStackTrace();
-			}
-		}
+		return this.name;
 	}
 
 }

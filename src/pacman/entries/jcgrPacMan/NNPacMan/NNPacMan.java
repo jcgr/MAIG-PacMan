@@ -36,7 +36,7 @@ public class NNPacMan extends Controller<MOVE>
 		int numberOfOutputs = 5;
 		int hiddenLayerNeurons = 3;
 		
-		nn = new NeuralNetwork();
+		nn = new NeuralNetwork("PacMan");
 		
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -67,9 +67,9 @@ public class NNPacMan extends Controller<MOVE>
 		double[] results = nn.getOutput();
 		for(double d : results)
 			System.out.println(d);
-		
-		Backpropagator bp = new Backpropagator(nn, 1.0);
-		bp.train(ts, 0.05);
+
+		Backpropagator bp = new Backpropagator(nn);
+		bp.train(ts);
 		double[] weights = nn.getWeights();
 		for(double d : weights)
 		{
