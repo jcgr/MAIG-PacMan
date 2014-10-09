@@ -43,7 +43,7 @@ public class TreeNode
 		this.actions = new ArrayList<MOVE>();
 
 		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
-				, gs.getPacmanLastMoveMade()
+//				, gs.getPacmanLastMoveMade()
 				);
 		for (MOVE m : possibleMoves)
 			actions.add(m);
@@ -68,6 +68,12 @@ public class TreeNode
 
 	public TreeNode expand()
 	{
+//		for (MOVE m : actions)
+//		{
+//			TreeNode expandedNode = new TreeNode(m, this, gs.copy(), this.depth + 1, false);
+//			children.add(expandedNode);
+//		}
+//		return this.bestChild();
 		MOVE[] untriedActions = getUntriedActions();
 		MOVE nextTry = untriedActions[MCTS.random.nextInt(untriedActions.length)];
 		// System.out.println(nextTry.toString() + " was added");
@@ -109,7 +115,7 @@ public class TreeNode
 //		List<TreeNode> nodes = new ArrayList<TreeNode>();
 //		
 //		for (TreeNode child : children)
-//			if (child.visits < 5)
+//			if (child.visits < 3)
 //				nodes.add(child);
 //		
 //		if (nodes.size() > 0)
@@ -148,8 +154,8 @@ public class TreeNode
 		}
 		else
 			result += 1.0;
-//
-//			// Normalizing pills eaten
+
+			// Normalizing pills eaten
 //			double min = 0;
 //			double max = MCTS.pillsAtRoot;
 //			double eaten = max - gs.getActivePillsIndices().length;
@@ -169,10 +175,12 @@ public class TreeNode
 //			
 //			double normalized = (eaten - min) / (max - min);
 //				result += normalized;
+//		
+//		return result;
 		
 //		if (gs.getScore() > 0)
 			return result * (gs.getScore() / 1000.0);
-//		return result;
+//		return gs.getScore() / 1000;
 		
 //		double closestGhost = 50;
 ////		System.out.println(Arrays.toString(GHOST.values()));

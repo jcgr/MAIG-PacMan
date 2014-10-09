@@ -6,6 +6,8 @@ package pacman.entries.jcgrPacMan.MCTS;
 import java.util.EnumMap;
 import java.util.Random;
 
+import pacman.controllers.examples.Legacy;
+import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
@@ -41,7 +43,7 @@ public class MCTS
 		this.gs = gs.copy();
 		this.tree = new TreeNode(gs.getPacmanLastMoveMade(), null, this.gs, 0, true);
 		currIteration = 0;
-		
+			
 		TreeNode v = null;
 		double delta = 0.0;
 		
@@ -114,7 +116,7 @@ public class MCTS
 	
 	private double defaultPolicy(TreeNode v)
 	{
-		StarterGhosts sg = new StarterGhosts();
+		Legacy2TheReckoning sg = new Legacy2TheReckoning();
 		double result = 0.0;
 		TreeNode tempNode = v;
 		Game tempGame = v.getGameState().copy();
@@ -122,17 +124,21 @@ public class MCTS
 		while (!tempNode.isTerminalNode())
 		{
 			MOVE[] possibleMoves;
-			
+			MOVE nextPMMove = MOVE.NEUTRAL;
 			if (pacManAtJunction(tempGame))
+			{
 				possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
-					, tempGame.getPacmanLastMoveMade()
-					);
-			else
-				possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
-						, tempGame.getPacmanLastMoveMade()
+				 , tempGame.getPacmanLastMoveMade()
 						);
-			
-			MOVE nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
+				nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
+//				nextPMMove = tempNode.moveTo;
+			}
+//			else
+//				possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
+//						, tempGame.getPacmanLastMoveMade()
+//						);
+//			
+//			MOVE nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
 			
 			EnumMap<GHOST, MOVE> validGhostMoves = sg.getMove(tempGame, -1);
 //			EnumMap<GHOST, MOVE> validGhostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
