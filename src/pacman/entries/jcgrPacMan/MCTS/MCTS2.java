@@ -19,8 +19,8 @@ import pacman.game.Constants.MOVE;
  */
 public class MCTS2
 {
-	public static final double EXPLORATION_CONSTANT = 80;
-	public static final double MAX_PATH_TO_ROOT = 35;
+	public static final double EXPLORATION_CONSTANT = 100;
+	public static final double MAX_PATH_TO_ROOT = 50;
 	public static final int VISIT_THRESHOLD = 3;
 	public static int ROOT_MAZE_INDEX;
 	public static int PILLS_AT_ROOT;
@@ -52,8 +52,11 @@ public class MCTS2
 		
 		while (currIteration < MAX_ITERATIONS)
 		{
+			// Selection + Expansion
 			currNode = selection();	
+			// Playout / simulation
 			currNode = playout(currNode);
+			// Backpropagation
 			backpropagate(currNode);
 			currIteration++;
 		}
@@ -64,13 +67,13 @@ public class MCTS2
 		{
 			for (TreeNode2 child : root.children)
 			{
-				System.out.print(child.getMoveTo() + " | " + child.getScore());
+				System.out.print(child.getMoveTo() + " | " + child.visits);
 				System.out.println(" and " + child.maxSSurvival + " " + child.maxSPill);
 				
-				for (TreeNode2 cc : child.children)
-				{
-					System.out.println(cc.getMoveTo() + " | " + cc.visits);
-				}
+//				for (TreeNode2 cc : child.children)
+//				{
+//					System.out.println(cc.getMoveTo() + " | " + cc.visits);
+//				}
 			}
 			System.out.println("Chosen move: " + bc.getMoveTo());
 		}
@@ -79,6 +82,10 @@ public class MCTS2
 		return root.bestChild();
 	}
 	
+	/**
+	 * Selection + Expansion from paper.
+	 * @return Newly expanded node.
+	 */
 	private TreeNode2 selection()
 	{
 		TreeNode2 tempNode = root;
@@ -94,6 +101,11 @@ public class MCTS2
 		return tempNode;
 	}
 	
+	/**
+	 * Simulates a play starting at the given node.
+	 * @param node
+	 * @return The node that the simulation ends at.
+	 */
 	private TreeNode2 playout(TreeNode2 node)
 	{
 		TreeNode2 tempNode = node;
@@ -118,6 +130,10 @@ public class MCTS2
 		return tempNode;
 	}
 	
+	/**
+	 * Backpropagates the tree, using the given node as start point.
+	 * @param node
+	 */
 	public void backpropagate(TreeNode2 node)
 	{
 		TreeNode2 tempNode = node;

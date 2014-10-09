@@ -1,6 +1,3 @@
-/**
- * 
- */
 package pacman.entries.jcgrPacMan.MCTS;
 
 import java.util.ArrayList;
@@ -8,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
@@ -25,7 +21,6 @@ public class TreeNode2
 
 	private Game gs;
 	private MOVE moveTo;
-//	private List<MOVE> actions;
 	private Map<MOVE, Boolean> actions;
 
 	private double pathLength;
@@ -64,8 +59,13 @@ public class TreeNode2
 		this.totSSurvival = 0.0;
 	}
 
+	/**
+	 * Gets the best child of the node.
+	 */
 	public TreeNode2 bestChild()
 	{
+		// If there are children that have not been visited at least
+		// VISIT_THRESHOLD times, visit one of them.
 		List<TreeNode2> unvisitedChildren = new ArrayList<TreeNode2>();
 		for (TreeNode2 child : children)
 			if (child.visits < MCTS2.VISIT_THRESHOLD)
@@ -74,6 +74,7 @@ public class TreeNode2
 		if (unvisitedChildren.size() > 0)
 			return unvisitedChildren.get(MCTS2.random.nextInt(unvisitedChildren.size()));
 		
+		// Find the best child based on UCT value.
 		TreeNode2 bestChild = null;
 		double bestValue = -10000;
 		
@@ -94,29 +95,32 @@ public class TreeNode2
 		return bestChild;
 	}
 
+	/**
+	 * Expands the node and returns the new child node created
+	 */
 	public TreeNode2 expand()
 	{
 //		System.out.println(children.size() + " | actions " + actions.size());
 		Game tempGame;
 		MOVE[] untriedActions = this.getUntriedActions();
 		TreeNode2 newNode = null;
-		
-//		for (MOVE m : untriedActions)
-//		{
-			if (this.pathLength + 1 < MCTS2.MAX_PATH_TO_ROOT)
-			{
-				MOVE m = untriedActions[MCTS2.random.nextInt(untriedActions.length)];
-				tempGame = gs.copy();
-				tempGame.advanceGame(m, MCTS2.ghostStrategy.getMove(tempGame, -1));
-				newNode = new TreeNode2(tempGame, this, m, this.pathLength + 1);
-				children.add(newNode);
-				actions.put(m, true);
-			}
-//		}
-		
-			return newNode;
+
+		if (this.pathLength + 1 < MCTS2.MAX_PATH_TO_ROOT)
+		{
+			MOVE m = untriedActions[MCTS2.random.nextInt(untriedActions.length)];
+			tempGame = gs.copy();
+			tempGame.advanceGame(m, MCTS2.ghostStrategy.getMove(tempGame, -1));
+			newNode = new TreeNode2(tempGame, this, m, this.pathLength + 1);
+			children.add(newNode);
+			actions.put(m, true);
+		}
+
+		return newNode;
 	}
 	
+	/**
+	 * Gets the untried actions for this node.
+	 */
 	private MOVE[] getUntriedActions()
 	{
 		int untried = 0;
@@ -142,15 +146,21 @@ public class TreeNode2
 		return untriedActions;
 	}
 	
+	/**
+	 * Gets the score of the node.
+	 */
 	public double getScore()
 	{
 //		return ((double)gs.getScore() / 1000.0) * maxSSurvival;
 		if (MCTS2.SURVIVAL)
 			return maxSSurvival;
 		else
-			return maxSSurvival + maxSPill;
+			return maxSSurvival * maxSPill;
 	}
 	
+	/**
+	 * Gets the RSurvival value (see 4.4 in paper)
+	 */
 	public double getRewardSurvival()
 	{
 		if (gs.wasPacManEaten())
@@ -159,6 +169,9 @@ public class TreeNode2
 			return 1.0;
 	}
 	
+	/**
+	 * Gets the RPill value (see 4.4 in paper)
+	 */
 	public double getRewardPill()
 	{
 		double min = 0; //MCTS2.PILLS_AT_ROOT - (MCTS2.MAX_PATH_TO_ROOT * 2);
@@ -174,6 +187,9 @@ public class TreeNode2
 		return normalized;
 	}
 	
+	/**
+	 * Updates the various score values (see 4.1 in paper)
+	 */
 	public void updateValues(double sPill, double sSurvival)
 	{
 		visits++;
@@ -221,9 +237,6 @@ public class TreeNode2
 
 	public boolean isLeafNode()
 	{
-//		System.out.println("children: " + children.size() + " | action: " + actions.size());
-//		System.out.println(children.size() == actions.size());
 		return (children.size() != actions.size());
-		// return false;
 	}
 }
