@@ -23,6 +23,14 @@ public class HumanController extends Controller<MOVE>
 
     public MOVE getMove(Game game,long dueTime)
     {
+    	if (game.getActivePillsIndices().length == 0)
+    	{
+    		System.out.println("0 pills");
+    	}
+    	if (game.getActivePillsIndices().length == 1)
+    	{
+    		System.out.println("1 pills");
+    	}
     	switch(input.getKey())
     	{
 	    	case KeyEvent.VK_UP: 	return MOVE.UP;

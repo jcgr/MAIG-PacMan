@@ -19,15 +19,15 @@ import pacman.game.Game;
 public class MCTS
 {
 	static final double EXPLORATION_CONSTANT = 1;
-	static final int MAX_DEPTH = 80;
+	static final int MAX_DEPTH = 100;
 	static Random random = new Random();
 	
-	static int pillsAtRoot;
+	static int pillsAtRoot, rootMaze;
 	static boolean survival = false;
 	
 //	static int expansions;
 	
-	private final int maxIterations = 20;
+	private final int maxIterations = 40;
 	private int currIteration;
 	private TreeNode tree;
 	private Game gs;
@@ -40,7 +40,7 @@ public class MCTS
 	{
 //		expansions = 0;
 		this.gs = gs.copy();
-		this.tree = new TreeNode(MOVE.NEUTRAL, null, this.gs, 0, true);
+		this.tree = new TreeNode(gs.getPacmanLastMoveMade(), null, this.gs, 0, true);
 		currIteration = 0;
 		
 //		List<TreeNode> bestChoice = null;
@@ -51,6 +51,8 @@ public class MCTS
 		
 		while (!terminate(currIteration))
 		{
+//			pillsAtRoot = gs.getNumberOfPills();
+			rootMaze = gs.getMazeIndex();
 			pillsAtRoot = gs.getActivePillsIndices().length;
 			v = treePolicy(tree);
 			delta = defaultPolicy(v);
@@ -134,16 +136,20 @@ public class MCTS
 //					possibleMoves = tempGame.getPossibleMoves(tempGame.getGhostCurrentNodeIndex(ghost)
 //							, tempGame.getGhostLastMoveMade(ghost)
 //							);
+//					MOVE nextGMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
 					
 					MOVE nextGMove = tempGame.getNextMoveTowardsTarget(tempGame.getGhostCurrentNodeIndex(ghost)
 							, tempGame.getPacmanCurrentNodeIndex()
 							, DM.PATH);
-					//= possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
 					validGhostMoves.put(ghost, nextGMove);
 				}
 			}
 
 			tempGame.advanceGame(nextPMMove, validGhostMoves);
+			
+			if (tempGame.getMazeIndex() != MCTS.rootMaze)
+				break;
+			
 			tempNode = new TreeNode(nextPMMove, tempNode, tempGame, tempNode.depth + 1, false);
 			result += tempNode.getReward();
 			// System.out.print(tempNode.getReward() + " | ");
@@ -151,9 +157,9 @@ public class MCTS
 		// System.out.println();
 		// System.out.print(result);
 
-		 return result;
+//		 return result;
 		// System.out.println(tempNode.getReward() + " | " + result);
-//		return tempNode.getReward();
+		return tempNode.getReward();
 	}
 	
 	private void backup(TreeNode v, double delta)

@@ -4,10 +4,12 @@
 package pacman.entries.jcgrPacMan.MCTS;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 
+import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
@@ -41,7 +43,7 @@ public class TreeNode
 		this.actions = new ArrayList<MOVE>();
 
 		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
-				, gs.getPacmanLastMoveMade()
+//				, gs.getPacmanLastMoveMade()
 				);
 		for (MOVE m : possibleMoves)
 			actions.add(m);
@@ -106,9 +108,13 @@ public class TreeNode
 
 		for (TreeNode child : children)
 		{
+//			double uctValue = ((child.getReward() / child.visits) 
+//					+ (MCTS.EXPLORATION_CONSTANT 
+//						* Math.sqrt(2 * (Math.log(this.visits))	/ child.visits)));
 			double uctValue = ((child.totalValue) 
-					+ (MCTS.EXPLORATION_CONSTANT * Math.sqrt((Math.log(this.visits))
-					/ child.visits)));
+					+ (MCTS.EXPLORATION_CONSTANT 
+						* Math.sqrt((Math.log(this.visits))	/ child.visits)));
+			
 			uctValue += MCTS.EXPLORATION_CONSTANT * MCTS.random.nextDouble();
 			
 			if (uctValue > bestValue)
@@ -129,7 +135,7 @@ public class TreeNode
 		if (gs.wasPacManEaten())
 		{
 //			System.out.println("Retard coming through, going " + this.moveTo);
-			result += -1.0;
+			result += 0.0;
 		}
 		else
 			result += 1.0;
@@ -141,11 +147,38 @@ public class TreeNode
 			double max = MCTS.pillsAtRoot;
 			double eaten = max - gs.getActivePillsIndices().length;
 
+//			System.out.println(eaten);
+			
+			if (eaten < 0)
+			{
+				System.out.println("Wat! " + eaten);
+				System.out.println(max);
+				System.out.println(gs.getActivePillsIndices().length);
+				System.out.println("-------------------");
+			}
+			
 			double normalized = (eaten - min) / (max - min);
 			result *= normalized;
 //		}
 
-		return result;
+			return result;
+		
+//		double closestGhost = 50;
+////		System.out.println(Arrays.toString(GHOST.values()));
+//		for (GHOST ghost : GHOST.values())
+//		{
+////			System.out.println(ghost == null);
+//			if(gs.getGhostEdibleTime(ghost) == 0 && gs.getGhostLairTime(ghost) == 0)
+//			{
+//				double dist = gs.getDistance(gs.getPacmanCurrentNodeIndex()
+//						, gs.getGhostCurrentNodeIndex(ghost)
+//						, DM.PATH);
+//				if (dist < closestGhost)
+//					closestGhost = dist;
+//			}
+//		}
+//		
+//		return closestGhost;
 	}
 
 	public void updateValues(double value)
@@ -164,8 +197,10 @@ public class TreeNode
 	{
 		return (gs.wasPacManEaten() 
 				|| depthCheck()
-				|| (gs.getActivePillsIndices().length == 0 
-				&& gs.getActivePowerPillsIndices().length == 0));
+				|| (gs.getMazeIndex() != MCTS.rootMaze)
+//				|| (gs.getActivePillsIndices().length == 0 
+//					&& gs.getActivePowerPillsIndices().length == 0)
+				);
 	}
 	
 	private boolean depthCheck()
