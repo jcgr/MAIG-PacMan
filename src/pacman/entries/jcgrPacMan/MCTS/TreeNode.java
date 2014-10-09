@@ -43,7 +43,7 @@ public class TreeNode
 		this.actions = new ArrayList<MOVE>();
 
 		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
-//				, gs.getPacmanLastMoveMade()
+				, gs.getPacmanLastMoveMade()
 				);
 		for (MOVE m : possibleMoves)
 			actions.add(m);
@@ -106,16 +106,25 @@ public class TreeNode
 		TreeNode selected = null;
 		double bestValue = -100000.0;
 
+//		List<TreeNode> nodes = new ArrayList<TreeNode>();
+//		
+//		for (TreeNode child : children)
+//			if (child.visits < 5)
+//				nodes.add(child);
+//		
+//		if (nodes.size() > 0)
+//			return nodes.get(MCTS.random.nextInt(nodes.size()));
+		
 		for (TreeNode child : children)
 		{
-//			double uctValue = ((child.getReward() / child.visits) 
+//			double uctValue = ((child.totalValue / child.visits) 
 //					+ (MCTS.EXPLORATION_CONSTANT 
 //						* Math.sqrt(2 * (Math.log(this.visits))	/ child.visits)));
 			double uctValue = ((child.totalValue) 
 					+ (MCTS.EXPLORATION_CONSTANT 
 						* Math.sqrt((Math.log(this.visits))	/ child.visits)));
 			
-			uctValue += MCTS.EXPLORATION_CONSTANT * MCTS.random.nextDouble();
+//			uctValue += MCTS.EXPLORATION_CONSTANT * MCTS.random.nextDouble();
 			
 			if (uctValue > bestValue)
 			{
@@ -131,7 +140,7 @@ public class TreeNode
 	{
 		double result = 0.0;
 
-		// Was PacMan eaten
+//		// Was PacMan eaten
 		if (gs.wasPacManEaten())
 		{
 //			System.out.println("Retard coming through, going " + this.moveTo);
@@ -139,29 +148,31 @@ public class TreeNode
 		}
 		else
 			result += 1.0;
-
-//		if (!MCTS.survival)
-//		{
-			// Normalizing pills eaten
-			double min = 0;
-			double max = MCTS.pillsAtRoot;
-			double eaten = max - gs.getActivePillsIndices().length;
-
-//			System.out.println(eaten);
-			
-			if (eaten < 0)
-			{
-				System.out.println("Wat! " + eaten);
-				System.out.println(max);
-				System.out.println(gs.getActivePillsIndices().length);
-				System.out.println("-------------------");
-			}
-			
-			double normalized = (eaten - min) / (max - min);
-			result *= normalized;
-//		}
-
-			return result;
+//
+//			// Normalizing pills eaten
+//			double min = 0;
+//			double max = MCTS.pillsAtRoot;
+//			double eaten = max - gs.getActivePillsIndices().length;
+//
+//			if (eaten < min)
+//				eaten = max;
+//			
+////			System.out.println(eaten);
+//			
+//			if (eaten < 0)
+//			{
+//				System.out.println("Wat! " + eaten);
+//				System.out.println(max);
+//				System.out.println(gs.getActivePillsIndices().length);
+//				System.out.println("-------------------");
+//			}
+//			
+//			double normalized = (eaten - min) / (max - min);
+//				result += normalized;
+		
+//		if (gs.getScore() > 0)
+			return result * (gs.getScore() / 1000.0);
+//		return result;
 		
 //		double closestGhost = 50;
 ////		System.out.println(Arrays.toString(GHOST.values()));

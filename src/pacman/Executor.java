@@ -49,11 +49,15 @@ public class Executor
 	{
 		Executor exec=new Executor();
 		boolean visual = true;
-
+		boolean trials = true;
 		
 		//run multiple games in batch mode - good for testing.
-//		int numTrials=100;
-//		exec.runExperiment(new MCTSPacMan(),new StarterGhosts(),numTrials);
+		if (trials)
+		{
+			int numTrials = 100;
+			exec.runExperiment(new MCTSPacMan(), new StarterGhosts(), numTrials);
+			return;
+		}
 		 
 		
 		

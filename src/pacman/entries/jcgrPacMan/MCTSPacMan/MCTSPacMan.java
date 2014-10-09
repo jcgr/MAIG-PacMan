@@ -3,6 +3,7 @@
  */
 package pacman.entries.jcgrPacMan.MCTSPacMan;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import pacman.controllers.Controller;
@@ -18,7 +19,7 @@ import pacman.game.Constants.MOVE;
  */
 public class MCTSPacMan extends Controller<MOVE>
 {
-
+	MOVE lastMoveMade;
 	MCTS mcts;
 	
 	public MCTSPacMan()
@@ -31,10 +32,17 @@ public class MCTSPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-		TreeNode tn = mcts.search(game);
-		MOVE move = tn == null ? MOVE.NEUTRAL : tn.moveTo;
-//		System.out.println(move.toString());
-//		System.out.println();
-		return move;
+		int pmIndex = game.getPacmanCurrentNodeIndex();
+		
+		if (MCTS.pacManAtJunction(game))
+		{
+//			System.out.println("AT JUNCTION!");
+			TreeNode tn = mcts.search(game);
+			MOVE move = tn == null ? MOVE.NEUTRAL : tn.moveTo;
+			return move;
+		}
+		
+		MOVE[] possibleMoves = game.getPossibleMoves(pmIndex, game.getPacmanLastMoveMade());
+		return possibleMoves[0];
 	}
 }
