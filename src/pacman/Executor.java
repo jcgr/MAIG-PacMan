@@ -49,7 +49,7 @@ public class Executor
 	{
 		Executor exec=new Executor();
 		boolean visual = true;
-		boolean trials = true;
+		boolean trials = false;
 		
 		//run multiple games in batch mode - good for testing.
 		if (trials)

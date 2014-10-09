@@ -119,6 +119,7 @@ public class MCTS
 		Legacy2TheReckoning sg = new Legacy2TheReckoning();
 		double result = 0.0;
 		TreeNode tempNode = v;
+		tempNode.depth = 0;
 		Game tempGame = v.getGameState().copy();
 
 		while (!tempNode.isTerminalNode())

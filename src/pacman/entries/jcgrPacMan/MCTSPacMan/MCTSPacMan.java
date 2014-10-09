@@ -8,7 +8,9 @@ import java.util.List;
 
 import pacman.controllers.Controller;
 import pacman.entries.jcgrPacMan.MCTS.MCTS;
+import pacman.entries.jcgrPacMan.MCTS.MCTS2;
 import pacman.entries.jcgrPacMan.MCTS.TreeNode;
+import pacman.entries.jcgrPacMan.MCTS.TreeNode2;
 import pacman.game.Game;
 import pacman.game.Constants.MOVE;
 
@@ -19,12 +21,12 @@ import pacman.game.Constants.MOVE;
  */
 public class MCTSPacMan extends Controller<MOVE>
 {
-	MOVE lastMoveMade;
-	MCTS mcts;
+	int iterations = 0;
+	MCTS2 mcts;
 	
 	public MCTSPacMan()
 	{
-		mcts = new MCTS();
+		mcts = new MCTS2();
 	}
 	
 	/* (non-Javadoc)
@@ -37,11 +39,13 @@ public class MCTSPacMan extends Controller<MOVE>
 		if (MCTS.pacManAtJunction(game))
 		{
 //			System.out.println("AT JUNCTION!");
-			TreeNode tn = mcts.search(game);
-			MOVE move = tn == null ? MOVE.NEUTRAL : tn.moveTo;
+			TreeNode2 tn = mcts.search(game, iterations);
+			MOVE move = tn == null ? MOVE.NEUTRAL : tn.getMoveTo();
+			iterations++;
 			return move;
 		}
-		
+
+		iterations++;
 		MOVE[] possibleMoves = game.getPossibleMoves(pmIndex, game.getPacmanLastMoveMade());
 		return possibleMoves[0];
 	}

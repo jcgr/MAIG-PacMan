@@ -9,6 +9,7 @@ import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 
+import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
@@ -43,7 +44,7 @@ public class TreeNode
 		this.actions = new ArrayList<MOVE>();
 
 		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
-//				, gs.getPacmanLastMoveMade()
+				, gs.getPacmanLastMoveMade()
 				);
 		for (MOVE m : possibleMoves)
 			actions.add(m);
@@ -55,9 +56,11 @@ public class TreeNode
 		// The root node should not have any action happen.
 		if (!root)
 		{
-			ghostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
-			for (GHOST ghost : GHOST.values())
-				ghostMoves.put(ghost, gs.getGhostLastMoveMade(ghost));
+			Legacy2TheReckoning sg = new Legacy2TheReckoning();
+			ghostMoves = sg.getMove(gs, -1);
+//			ghostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
+//			for (GHOST ghost : GHOST.values())
+//				ghostMoves.put(ghost, gs.getGhostLastMoveMade(ghost));
 
 			gs.advanceGame(this.moveTo, ghostMoves);
 		}
