@@ -29,122 +29,18 @@ public class Simulation
 	
 	SimNode root;
 	
-	public SimNode simulate(Game game, int maxDepth)
+	public SimNode search(Game game, int maxDepth)
 	{
-		this.maxDepth = maxDepth;
-		this.rootMaze = game.getMazeIndex();
-		pillsAtRoot = game.getNumberOfPills();
-		powerPillsAtRoot = game.getNumberOfPowerPills();
-		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
-		List<SimNode> terminals = new ArrayList<SimNode>();
-		List<SimNode> toVisit = new ArrayList<SimNode>();
-//		System.out.println(powerPillActive(game));
-		root = new SimNode(null, game.getPacmanLastMoveMade(), game, 0, powerPillActive(game));
-		toVisit.add(root);
-//		for (MOVE m : possibleMoves)
-//		{
-//			Game tempGame = game.copy();
-//			tempGame.advanceGame(m, ghostStrategy.getMove(tempGame, -1));
-//			Node newNode = new Node(root, m, tempGame, 1);
-//			toVisit.add(newNode);
-//		}
-		
-		while (!toVisit.isEmpty())
-		{
-			List<SimNode> newNodes = new ArrayList<SimNode>();
-			SimNode tempNode = toVisit.remove(0);
-			
-			if (tempNode.isTerminalNode())
-			{
-				terminals.add(tempNode);
-				continue;
-			}
-			
-			if (!tempNode.isExpanded())
-				newNodes = tempNode.expand();
-			
-			if (!newNodes.isEmpty())
-				toVisit.addAll(newNodes);
-		}
-		
-		while (!terminals.isEmpty())
-		{
-			SimNode tempNode = terminals.remove(0);
-			double survival = tempNode.getSurvivalReward();
-			double pills = tempNode.getPillReward();
-			
-			while (tempNode != null)
-			{
-				tempNode.updateStats(pills, survival);
-				tempNode = tempNode.getParent();
-			}
-		}
-		
-		List<SimNode> children = root.children;
-		
-//		for (SimNode n : children)
-//		{
-//			System.out.println(n.moveTo + " | " + n.getScore());
-//		}
-//		System.out.println(root.getBestChild().moveTo);
-//		System.out.println("----------------");
+		this.simulate(game, maxDepth);
 		
 		SimNode choice = root.getBestChild();
 		
 		return choice;
 	}
 	
-	public List<SimNode> simulateList(Game game, int maxDepth)
+	public List<SimNode> searchList(Game game, int maxDepth)
 	{
-		this.maxDepth = maxDepth;
-		this.rootMaze = game.getMazeIndex();
-		pillsAtRoot = game.getNumberOfPills();
-		powerPillsAtRoot = game.getNumberOfPowerPills();
-		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
-		List<SimNode> terminals = new ArrayList<SimNode>();
-		List<SimNode> toVisit = new ArrayList<SimNode>();
-//		System.out.println(powerPillActive(game));
-		root = new SimNode(null, game.getPacmanLastMoveMade(), game, 0, powerPillActive(game));
-		toVisit.add(root);
-//		for (MOVE m : possibleMoves)
-//		{
-//			Game tempGame = game.copy();
-//			tempGame.advanceGame(m, ghostStrategy.getMove(tempGame, -1));
-//			Node newNode = new Node(root, m, tempGame, 1);
-//			toVisit.add(newNode);
-//		}
-		
-		while (!toVisit.isEmpty())
-		{
-			List<SimNode> newNodes = new ArrayList<SimNode>();
-			SimNode tempNode = toVisit.remove(0);
-			
-			if (tempNode.isTerminalNode())
-			{
-				terminals.add(tempNode);
-				continue;
-			}
-			
-			if (!tempNode.isExpanded())
-				newNodes = tempNode.expand();
-			
-			if (!newNodes.isEmpty())
-				toVisit.addAll(newNodes);
-		}
-		
-		while (!terminals.isEmpty())
-		{
-			SimNode tempNode = terminals.remove(0);
-			double survival = tempNode.getSurvivalReward();
-			double pills = tempNode.getPillReward();
-			
-			while (tempNode != null)
-			{
-				tempNode.updateStats(pills, survival);
-				tempNode = tempNode.getParent();
-			}
-		}
-		
+		this.simulate(game, maxDepth);
 		List<SimNode> children = root.children;
 		
 //		for (SimNode n : children)
@@ -157,6 +53,58 @@ public class Simulation
 //		SimNode choice = root.getBestChild();
 		
 		return children;
+	}
+	
+	private void simulate(Game game, int maxDepth)
+	{
+		this.maxDepth = maxDepth;
+		this.rootMaze = game.getMazeIndex();
+		pillsAtRoot = game.getNumberOfPills();
+		powerPillsAtRoot = game.getNumberOfPowerPills();
+		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
+		List<SimNode> terminals = new ArrayList<SimNode>();
+		List<SimNode> toVisit = new ArrayList<SimNode>();
+//		System.out.println(powerPillActive(game));
+		root = new SimNode(null, game.getPacmanLastMoveMade(), game, 0, powerPillActive(game));
+		toVisit.add(root);
+//		for (MOVE m : possibleMoves)
+//		{
+//			Game tempGame = game.copy();
+//			tempGame.advanceGame(m, ghostStrategy.getMove(tempGame, -1));
+//			Node newNode = new Node(root, m, tempGame, 1);
+//			toVisit.add(newNode);
+//		}
+		
+		while (!toVisit.isEmpty())
+		{
+			List<SimNode> newNodes = new ArrayList<SimNode>();
+			SimNode tempNode = toVisit.remove(0);
+			
+			if (tempNode.isTerminalNode())
+			{
+				terminals.add(tempNode);
+				continue;
+			}
+			
+			if (!tempNode.isExpanded())
+				newNodes = tempNode.expand();
+			
+			if (!newNodes.isEmpty())
+				toVisit.addAll(newNodes);
+		}
+		
+		while (!terminals.isEmpty())
+		{
+			SimNode tempNode = terminals.remove(0);
+			double survival = tempNode.getSurvivalReward();
+			double pills = tempNode.getPillReward();
+			
+			while (tempNode != null)
+			{
+				tempNode.updateStats(pills, survival);
+				tempNode = tempNode.getParent();
+			}
+		}
 	}
 	
 	public static boolean powerPillActive(Game game)

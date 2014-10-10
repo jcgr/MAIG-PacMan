@@ -100,7 +100,7 @@ public class DataTuple {
 		this.numberOfTotalPowerPillsInLevel = game.getNumberOfPowerPills();
 
 		Simulation sim = new Simulation();
-		List<SimNode> nodes = sim.simulateList(game, 60);
+		List<SimNode> nodes = sim.searchList(game, 60);
 		
 		this.moveUpValue = 0.0;
 		this.moveRightValue = 0.0;

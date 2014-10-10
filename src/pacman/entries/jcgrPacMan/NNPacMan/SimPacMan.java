@@ -33,7 +33,7 @@ public class SimPacMan extends Controller<MOVE>
 		
 		if (Simulation.pacManAtJunction(game))
 		{
-			SimNode ch = sim.simulate(game, 60);
+			SimNode ch = sim.search(game, 60);
 			MOVE move = (ch == null ? MOVE.NEUTRAL : ch.moveTo);
 			iterations++;
 			return move;
