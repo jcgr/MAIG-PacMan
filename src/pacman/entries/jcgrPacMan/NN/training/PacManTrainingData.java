@@ -40,31 +40,35 @@ public class PacManTrainingData extends TrainingData
 		
 //		input[0] = dt.normalizeLevel(dt.mazeIndex);
 //		input[1] = dt.normalizeLevel(dt.currentLevel);
-		input[0] = dt.normalizePosition(dt.pacmanPosition);
+//		input[0] = dt.normalizePosition(dt.pacmanPosition);
 //		input[3] = dt.pacmanLivesLeft;
 //		input[4] = dt.normalizeCurrentScore(dt.currentScore);
 //		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
 //		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
-		input[1] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
-		input[2] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
+//		input[1] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
+//		input[2] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
 		
 		// Ghosts edible?
-		input[3] = dt.normalizeBoolean(dt.isBlinkyEdible);
-		input[4] = dt.normalizeBoolean(dt.isInkyEdible);
-		input[5] = dt.normalizeBoolean(dt.isPinkyEdible);
-		input[6] = dt.normalizeBoolean(dt.isSueEdible);
+//		input[3] = dt.normalizeBoolean(dt.isBlinkyEdible);
+//		input[4] = dt.normalizeBoolean(dt.isInkyEdible);
+//		input[5] = dt.normalizeBoolean(dt.isPinkyEdible);
+//		input[6] = dt.normalizeBoolean(dt.isSueEdible);
 		
 		// Ghost distance
-		input[7] = dt.normalizeDistance(dt.blinkyDist);
-		input[8] = dt.normalizeDistance(dt.inkyDist);
-		input[9] = dt.normalizeDistance(dt.pinkyDist);
-		input[10] = dt.normalizeDistance(dt.sueDist);
+//		input[7] = dt.normalizeDistance(dt.blinkyDist);
+//		input[8] = dt.normalizeDistance(dt.inkyDist);
+//		input[9] = dt.normalizeDistance(dt.pinkyDist);
+//		input[10] = dt.normalizeDistance(dt.sueDist);
 		
 		// Ghost direction
-		input[10] = moveToDouble(dt.blinkyDir);
-		input[11] = moveToDouble(dt.inkyDir);
-		input[12] = moveToDouble(dt.pinkyDir);
-		input[13] = moveToDouble(dt.sueDir);
+//		input[10] = moveToDouble(dt.blinkyDir);
+//		input[11] = moveToDouble(dt.inkyDir);
+//		input[12] = moveToDouble(dt.pinkyDir);
+//		input[13] = moveToDouble(dt.sueDir);
+		input[0] = dt.moveUpValue;
+		input[1] = dt.moveRightValue;
+		input[2] = dt.moveDownValue;
+		input[3] = dt.moveLeftValue;
 	}
 
 	public static double moveToDouble(MOVE move)

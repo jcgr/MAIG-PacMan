@@ -8,6 +8,7 @@ import dataRecording.DataTuple;
 import pacman.entries.jcgrPacMan.NN.training.PacManTrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingSet;
+import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
 
 /**
  * 
@@ -24,11 +25,13 @@ public class NNTest
 	 */
 	public static void main(String[] args)
 	{
-		System.out.println("=====");
-		AND();
-		System.out.println("=====");
-		XOR();
-		System.out.println("=====");
+		NNPacMan.newcontroller();
+		System.out.println("Done training");
+//		System.out.println("=====");
+//		AND();
+//		System.out.println("=====");
+//		XOR();
+//		System.out.println("=====");
 //		Test();
 //		classificationByBackpropagationTest();
 	}

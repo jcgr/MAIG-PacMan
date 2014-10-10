@@ -1,16 +1,9 @@
 /**
  * 
  */
-package pacman.entries.jcgrPacMan.MCTSPacMan;
-
-import java.util.ArrayList;
-import java.util.List;
+package pacman.entries.jcgrPacMan.NNPacMan;
 
 import pacman.controllers.Controller;
-import pacman.entries.jcgrPacMan.MCTS.MCTS;
-import pacman.entries.jcgrPacMan.MCTS.MCTS2;
-import pacman.entries.jcgrPacMan.MCTS.TreeNode;
-import pacman.entries.jcgrPacMan.MCTS.TreeNode2;
 import pacman.entries.jcgrPacMan.NN.simulation.SimNode;
 import pacman.entries.jcgrPacMan.NN.simulation.Simulation;
 import pacman.game.Game;
@@ -21,15 +14,13 @@ import pacman.game.Constants.MOVE;
  * 
  * @author Jacob
  */
-public class MCTSPacMan extends Controller<MOVE>
+public class SimPacMan extends Controller<MOVE>
 {
 	int iterations = 0;
-	MCTS2 mcts;
 	Simulation sim;
 	
-	public MCTSPacMan()
+	public SimPacMan()
 	{
-		mcts = new MCTS2();
 		sim = new Simulation();
 	}
 	
@@ -40,11 +31,10 @@ public class MCTSPacMan extends Controller<MOVE>
 	{
 		int pmIndex = game.getPacmanCurrentNodeIndex();
 		
-		if (MCTS.pacManAtJunction(game))
+		if (Simulation.pacManAtJunction(game))
 		{
-			System.out.println("AT JUNCTION!");
-			TreeNode2 tn = mcts.search(game, iterations);
-			MOVE move = tn == null ? MOVE.NEUTRAL : tn.getMoveTo();
+			SimNode ch = sim.simulate(game, 60);
+			MOVE move = (ch == null ? MOVE.NEUTRAL : ch.moveTo);
 			iterations++;
 			return move;
 		}

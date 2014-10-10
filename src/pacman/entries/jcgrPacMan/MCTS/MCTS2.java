@@ -63,20 +63,20 @@ public class MCTS2
 		
 		TreeNode2 bc = root.bestChild();
 		
-		if (bc != null)
-		{
-			for (TreeNode2 child : root.children)
-			{
-				System.out.print(child.getMoveTo() + " | " + child.visits);
-				System.out.println(" and " + child.maxSSurvival + " " + child.maxSPill);
-				
-//				for (TreeNode2 cc : child.children)
-//				{
-//					System.out.println(cc.getMoveTo() + " | " + cc.visits);
-//				}
-			}
-			System.out.println("Chosen move: " + bc.getMoveTo());
-		}
+//		if (bc != null)
+//		{
+//			for (TreeNode2 child : root.children)
+//			{
+//				System.out.print(child.getMoveTo() + " | " + child.visits);
+//				System.out.println(" and " + child.maxSSurvival + " " + child.maxSPill);
+//				
+////				for (TreeNode2 cc : child.children)
+////				{
+////					System.out.println(cc.getMoveTo() + " | " + cc.visits);
+////				}
+//			}
+//			System.out.println("Chosen move: " + bc.getMoveTo());
+//		}
 		System.out.println("--------------");
 		
 		return root.bestChild();

@@ -27,6 +27,7 @@ import pacman.controllers.examples.StarterPacMan;
 import pacman.entries.jcgrPacMan.BTPacMan.BTPacMan;
 import pacman.entries.jcgrPacMan.MCTSPacMan.MCTSPacMan;
 import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
+import pacman.entries.jcgrPacMan.NNPacMan.SimPacMan;
 import pacman.game.Game;
 import pacman.game.GameView;
 import static pacman.game.Constants.*;
@@ -50,12 +51,13 @@ public class Executor
 		Executor exec=new Executor();
 		boolean visual = true;
 		boolean trials = false;
+//		trials = true;
 		
 		//run multiple games in batch mode - good for testing.
 		if (trials)
 		{
 			int numTrials = 100;
-			exec.runExperiment(new MCTSPacMan(), new StarterGhosts(), numTrials);
+			exec.runExperiment(new SimPacMan(), new StarterGhosts(), numTrials);
 			return;
 		}
 		 
@@ -67,18 +69,22 @@ public class Executor
 //		exec.runGame(new BTPacMan(),new RandomGhosts(),visual,delay);
   		 
 		
+		if (!trials)
+		{
 		///*
 		//run the game in asynchronous mode.
-//		boolean visual = true;
-//		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
-//		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-//		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
-//		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
-//		exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
-//		exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
-//		exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
-		exec.runGameTimed(new MCTSPacMan(),new StarterGhosts(),visual);
+	//		boolean visual = true;
+	//		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
+	//		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
+	//		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
+	//		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
+			exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
+//			exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
+	//		exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
+//			exec.runGameTimed(new MCTSPacMan(),new StarterGhosts(),visual);
+//			exec.runGameTimed(new SimPacMan(),new StarterGhosts(),visual);
 		//*/
+		}
 		
 		
 		//run the game in asynchronous mode but advance as soon as both controllers are ready  - this is the mode of the competition.

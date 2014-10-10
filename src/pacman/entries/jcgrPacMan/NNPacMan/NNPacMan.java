@@ -3,6 +3,8 @@
  */
 package pacman.entries.jcgrPacMan.NNPacMan;
 
+import java.util.Arrays;
+
 import dataRecording.DataSaverLoader;
 import dataRecording.DataTuple;
 import pacman.controllers.Controller;
@@ -14,6 +16,7 @@ import pacman.entries.jcgrPacMan.NN.training.PacManTrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingSet;
 import pacman.game.Game;
 import pacman.game.Constants.MOVE;
+import pacman.game.util.IO;
 
 /**
  * 
@@ -22,20 +25,29 @@ import pacman.game.Constants.MOVE;
  */
 public class NNPacMan extends Controller<MOVE>
 {
+	private boolean loadWeights = true;
+	private boolean loadArray = false;
+	private String fileToLoad = "PacManTest1.txt";
 	
+	int numberOfInputs = 4;
+	int numberOfOutputs = 5;
+	int hiddenLayerNeurons = 3;
 	NeuralNetwork nn;
 	
 	public NNPacMan()
 	{
-		trainNN();
+//		trainNN();
+		nn = NeuralNetwork.createSingleHiddenLayerNeuralNetwork(
+				"Test"
+				, numberOfInputs
+				, numberOfOutputs
+				, hiddenLayerNeurons);
+		if (loadWeights)
+			nn.setWeights(loadWeights());
 	}
 	
 	private void trainNN()
 	{
-		int numberOfInputs = 14;
-		int numberOfOutputs = 5;
-		int hiddenLayerNeurons = 3;
-		
 		nn = new NeuralNetwork("PacMan");
 		
 		Neuron bias = new Neuron();
@@ -65,16 +77,16 @@ public class NNPacMan extends Controller<MOVE>
 		nn.activate();
 		
 		double[] results = nn.getOutput();
-		for(double d : results)
-			System.out.println(d);
+//		for(double d : results)
+//			System.out.println(d);
 
 		Backpropagator bp = new Backpropagator(nn);
 		bp.train(ts);
-		double[] weights = nn.getWeights();
-		for(double d : weights)
-		{
-			System.out.println(d + " - ");
-		}
+//		double[] weights = nn.getWeights();
+//		for(double d : weights)
+//		{
+//			System.out.println(d + " - ");
+//		}
 	}
 	
 	/* (non-Javadoc)
@@ -82,36 +94,15 @@ public class NNPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-		double[] input = new double[14];
+		if (pacManAtJunction(game))
+		{
+		double[] input = new double[numberOfInputs];
 		DataTuple dt = new DataTuple(game, lastMove);
 
-//		input[0] = dt.normalizeLevel(dt.mazeIndex);
-//		input[1] = dt.normalizeLevel(dt.currentLevel);
-		input[0] = dt.normalizePosition(dt.pacmanPosition);
-//		input[3] = dt.pacmanLivesLeft;
-//		input[4] = dt.normalizeCurrentScore(dt.currentScore);
-//		input[5] = dt.normalizeTotalGameTime(dt.totalGameTime);
-//		input[6] = dt.normalizeCurrentLevelTime(dt.currentLevelTime);
-		input[1] = dt.normalizeNumberOfPills(dt.numOfPillsLeft);
-		input[2] = dt.normalizeNumberOfPowerPills(dt.numOfPowerPillsLeft);
-		
-		// Ghosts edible?
-		input[3] = dt.normalizeBoolean(dt.isBlinkyEdible);
-		input[4] = dt.normalizeBoolean(dt.isInkyEdible);
-		input[5] = dt.normalizeBoolean(dt.isPinkyEdible);
-		input[6] = dt.normalizeBoolean(dt.isSueEdible);
-		
-		// Ghost distance
-		input[7] = dt.normalizeDistance(dt.blinkyDist);
-		input[8] = dt.normalizeDistance(dt.inkyDist);
-		input[9] = dt.normalizeDistance(dt.pinkyDist);
-		input[10] = dt.normalizeDistance(dt.sueDist);
-		
-		// Ghost direction
-		input[10] = PacManTrainingData.moveToDouble(dt.blinkyDir);
-		input[11] = PacManTrainingData.moveToDouble(dt.inkyDir);
-		input[12] = PacManTrainingData.moveToDouble(dt.pinkyDir);
-		input[13] = PacManTrainingData.moveToDouble(dt.sueDir);
+		input[0] = dt.moveUpValue;
+		input[1] = dt.moveRightValue;
+		input[2] = dt.moveDownValue;
+		input[3] = dt.moveLeftValue;
 		
 		nn.setInputs(input);
 		nn.activate();
@@ -149,15 +140,32 @@ public class NNPacMan extends Controller<MOVE>
 			}
 		}
 		
-		System.out.println();
-		double[] results = nn.getOutput();
-		for(double d : results)
-			System.out.print(d + " ||| ");
-		System.out.println();
-		System.out.println(chosenMove.toString());
+//		System.out.println();
+//		double[] results = nn.getOutput();
+//		for(double d : results)
+//			System.out.print(d + " ||| ");
+//		System.out.println();
+//		System.out.println(chosenMove.toString());
 		
 //		System.out.println(output);
 		return chosenMove;
+		}
+		
+
+		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex(), game.getPacmanLastMoveMade());
+		return possibleMoves[0];
+	}
+	
+	public static boolean pacManAtJunction(Game game)
+	{
+		boolean atJunction = false;
+		int pmIndex = game.getPacmanCurrentNodeIndex();
+		int[] juncts = game.getJunctionIndices();
+		for (int i : juncts)
+			if (i == pmIndex)
+				atJunction = true;
+		
+		return atJunction;
 	}
 
 	public static MOVE doubleToMove(double d)
@@ -183,5 +191,35 @@ public class NNPacMan extends Controller<MOVE>
 			return MOVE.LEFT;
 		}
 		return MOVE.NEUTRAL;
+	}
+
+	private double[] loadWeights()
+	{
+		if (loadArray)
+		{
+			double[] weights =
+			{};
+			return weights;
+		}
+
+		String s = IO.loadFile(fileToLoad);
+		String ss = s.substring(1, s.length() - 2);
+		String[] weightStrings = ss.split(", ");
+		double[] weights = new double[weightStrings.length];
+		for (int i = 0; i < weightStrings.length; i++)
+		{
+			weights[i] = Double.parseDouble(weightStrings[i]);
+		}
+
+		return weights;
+	}
+
+	
+	public static void newcontroller()
+	{
+		NNPacMan controller = new NNPacMan();
+		controller.trainNN();
+		String data = Arrays.toString(controller.nn.getWeights());
+		IO.saveFile(controller.nn.getName() + ".txt", data, false);
 	}
 }
