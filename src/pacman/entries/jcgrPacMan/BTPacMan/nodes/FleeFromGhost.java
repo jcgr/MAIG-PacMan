@@ -60,7 +60,7 @@ public class FleeFromGhost extends Action
 				distanceToGhost = pmContext.game.getShortestPathDistance(
 						pmContext.currentPacManIndex, pmContext.game.getGhostCurrentNodeIndex(ghost));
 				
-				if (distanceToGhost < pmContext.MIN_GHOST_DISTANCE)
+				if (distanceToGhost < pmContext.MIN_FLEE_DISTANCE)
 				{
 					flee = true;
 					result = STATUS.SUCCESS;
@@ -111,12 +111,8 @@ public class FleeFromGhost extends Action
 		{
 			// If only one move is rated higher than 0, return that one...
 			pmContext.nextMove = topMoves.get(0);
-//			System.out.println("1  option:  " + pmContext.nextMove);
-//			System.out.println(Arrays.toString(possibleMoves));
-//			System.out.println(Arrays.toString(possibleMovesCount));
-//			System.out.println();
 		}
-		else //if (topMoves.size() > 1)
+		else
 		{
 			// ... else return the move that leads towards the closest pill
 			// where a ghost is not in the way.
@@ -161,11 +157,6 @@ public class FleeFromGhost extends Action
 					}
 				}
 			}
-			
-//			System.out.println("2+ options: " + pmContext.nextMove);
-//			System.out.println(Arrays.toString(possibleMoves));
-//			System.out.println(Arrays.toString(possibleMovesCount));
-//			System.out.println();
 		}
 	
 		return result;

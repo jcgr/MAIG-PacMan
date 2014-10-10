@@ -112,6 +112,13 @@ public class FindPossibleTargets extends Action
 		}
 	}
 	
+	/**
+	 * Checks if a path contains the given positions.
+	 * @param ghostPositions The positions to look for in the path.
+	 * @param path A list that represents the path.
+	 * @return True if the path contains one of the positions;
+	 * 		   False otherwise.
+	 */
 	private boolean pathContainsGhost(int[] ghostPositions, int[] path)
 	{
 		for (int ghostPos : ghostPositions)

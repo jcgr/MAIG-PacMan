@@ -3,16 +3,9 @@
  */
 package pacman.entries.jcgrPacMan.MCTSPacMan;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import pacman.controllers.Controller;
 import pacman.entries.jcgrPacMan.MCTS.MCTS;
-import pacman.entries.jcgrPacMan.MCTS.MCTS2;
 import pacman.entries.jcgrPacMan.MCTS.TreeNode;
-import pacman.entries.jcgrPacMan.MCTS.TreeNode2;
-import pacman.entries.jcgrPacMan.NN.simulation.SimNode;
-import pacman.entries.jcgrPacMan.NN.simulation.Simulation;
 import pacman.game.Game;
 import pacman.game.Constants.MOVE;
 
@@ -23,14 +16,11 @@ import pacman.game.Constants.MOVE;
  */
 public class MCTSPacMan extends Controller<MOVE>
 {
-	int iterations = 0;
-	MCTS2 mcts;
-	Simulation sim;
+	MCTS mcts;
 	
 	public MCTSPacMan()
 	{
-		mcts = new MCTS2();
-		sim = new Simulation();
+		mcts = new MCTS();
 	}
 	
 	/* (non-Javadoc)
@@ -38,19 +28,14 @@ public class MCTSPacMan extends Controller<MOVE>
 	 */
 	public MOVE getMove(Game game, long timeDue)
 	{
-		int pmIndex = game.getPacmanCurrentNodeIndex();
-		
 		if (MCTS.pacManAtJunction(game))
 		{
-			System.out.println("AT JUNCTION!");
-			TreeNode2 tn = mcts.search(game, iterations);
-			MOVE move = tn == null ? MOVE.NEUTRAL : tn.getMoveTo();
-			iterations++;
+			TreeNode bestNode = mcts.search(game);
+			MOVE move = (bestNode == null ? MOVE.NEUTRAL : bestNode.getMoveTo());
 			return move;
 		}
 
-		iterations++;
-		MOVE[] possibleMoves = game.getPossibleMoves(pmIndex, game.getPacmanLastMoveMade());
+		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex(), game.getPacmanLastMoveMade());
 		return possibleMoves[0];
 	}
 }

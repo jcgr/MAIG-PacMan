@@ -60,22 +60,22 @@ public class NeuralNetwork
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
 
-		// Create input layer
+		// Create input layer and add neurons
 		NeuronLayer inputLayer = new NeuronLayer(bias);
 		for (int i = 0; i < numberOfInputNodes; i++)
 			inputLayer.addNeuron(new Neuron());
 
-		// Create hidden layer
+		// Create hidden layer and add neurons
 		NeuronLayer hiddenLayer = new NeuronLayer(inputLayer, bias);
 		for (int i = 0; i < numberOfHiddenNodes; i++)
 			hiddenLayer.addNeuron(new Neuron());
 
-		// Create output layer
+		// Create output layer and add neurons
 		NeuronLayer outputLayer = new NeuronLayer(hiddenLayer);
 		for (int i = 0; i < numberOfOutputNodes; i++)
 			outputLayer.addNeuron(new Neuron());
 
-		// Add layers to network
+		// Add the layers to the neural network
 		neuralNetowrk.addLayer(inputLayer);
 		neuralNetowrk.addLayer(hiddenLayer);
 		neuralNetowrk.addLayer(outputLayer);
@@ -96,8 +96,6 @@ public class NeuralNetwork
 
 		if (layers.size() > 1)
 		{
-			// Clear the output flag on the previous output layer, but only if
-			// we have more than 1 layer
 			NeuronLayer previousLayer = layers.get(layers.size() - 2);
 			previousLayer.setNextLayer(layer);
 		}
@@ -171,6 +169,8 @@ public class NeuralNetwork
 	 */
 	public void resetWeights()
 	{
+		// Reset each weight in the neural network to a random
+		// value between -1.0 and 1.0
 		for (NeuronLayer layer : layers)
 			for (Neuron neuron : layer.getNeurons())
 				for (Synapse synapse : neuron.getInputs())
@@ -179,7 +179,7 @@ public class NeuralNetwork
 
 	/**
 	 * Gets all the weights of the neural network.
-	 * @return
+	 * @return An array containing the weights of the neural network.
 	 */
 	public double[] getWeights()
 	{
@@ -204,7 +204,7 @@ public class NeuralNetwork
 
 	/**
 	 * Sets the weights of the entire neural network.
-	 * @param weights
+	 * @param weights The new weights of the neural network.
 	 */
 	public void setWeights(double[] weights)
 	{
@@ -224,7 +224,7 @@ public class NeuralNetwork
 
 	/**
 	 * Gets the name of the neural network.
-	 * @return
+	 * @return The name of the neural network.
 	 */
 	public String getName()
 	{

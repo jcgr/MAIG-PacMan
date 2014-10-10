@@ -91,7 +91,6 @@ public class NeuronLayer
 		// and every neuron in the previous layer.
 		if (previousLayer != null)
 			for (Neuron previousLayerNeuron : previousLayer.getNeurons())
-				// Initialize with a random weight between 1 and -1
 				neuron.addInput(new Synapse(previousLayerNeuron, (Math.random() * 2.0) - 1.0));
 	}
 

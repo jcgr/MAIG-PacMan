@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Random;
 
 import pacman.controllers.examples.Legacy2TheReckoning;
-import pacman.entries.jcgrPacMan.MCTS.MCTS2;
+import pacman.entries.jcgrPacMan.MCTS.MCTS;
 import pacman.game.Game;
 import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;

@@ -51,13 +51,13 @@ public class Executor
 		Executor exec=new Executor();
 		boolean visual = true;
 		boolean trials = false;
-//		trials = true;
+		trials = true;
 		
 		//run multiple games in batch mode - good for testing.
 		if (trials)
 		{
 			int numTrials = 100;
-			exec.runExperiment(new SimPacMan(), new StarterGhosts(), numTrials);
+			exec.runExperiment(new MCTSPacMan(), new StarterGhosts(), numTrials);
 			return;
 		}
 		 
@@ -71,19 +71,19 @@ public class Executor
 		
 		if (!trials)
 		{
-		///*
-		//run the game in asynchronous mode.
-	//		boolean visual = true;
-	//		exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
-	//		exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
-	//		exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
-	//		exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
+//		/*
+//			run the game in asynchronous mode.
+//			boolean visual = true;
+//			exec.runGameTimed(new NearestPillPacMan(),new AggressiveGhosts(),visual);
+//			exec.runGameTimed(new StarterPacMan(),new StarterGhosts(),visual);
+//			exec.runGameTimed(new NearestPillPacManVS(),new StarterGhosts(),visual);
+//			exec.runGameTimed(new HumanController(new KeyBoardInput()),new StarterGhosts(),visual);	
 //			exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
-			exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
-	//		exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
+//			exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
+//			exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
 //			exec.runGameTimed(new MCTSPacMan(),new StarterGhosts(),visual);
 //			exec.runGameTimed(new SimPacMan(),new StarterGhosts(),visual);
-		//*/
+//		*/
 		}
 		
 		

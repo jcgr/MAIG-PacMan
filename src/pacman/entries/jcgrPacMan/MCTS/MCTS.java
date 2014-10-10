@@ -3,16 +3,13 @@
  */
 package pacman.entries.jcgrPacMan.MCTS;
 
-import java.util.EnumMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
-import pacman.controllers.examples.Legacy;
-import pacman.controllers.examples.Legacy2TheReckoning;
 import pacman.controllers.examples.StarterGhosts;
-import pacman.game.Constants.DM;
-import pacman.game.Constants.GHOST;
-import pacman.game.Constants.MOVE;
 import pacman.game.Game;
+import pacman.game.Constants.MOVE;
 
 /**
  * 
@@ -21,187 +18,212 @@ import pacman.game.Game;
  */
 public class MCTS
 {
-	static final double EXPLORATION_CONSTANT = 100;
-	static final int MAX_DEPTH = 60;
-	static Random random = new Random();
+	/**
+	 * The exploration constant.
+	 */
+	public static final double EXPLORATION_CONSTANT = 0.5;
 	
-	static int pillsAtRoot, rootMaze;
-	static boolean survival = false;
+	/**
+	 * The maximum depth when simulating a playthrough.
+	 */
+	public static final double MAX_PATH_DEPTH = 10;
+
+	/**
+	 * The threshold for activating survival mode.
+	 */
+	public static final double SURVIVAL_THRESHOLD = 0.7;
 	
-	private final int maxIterations = 40;
+	/**
+	 * The minimum amount of times a node's children should be visited
+	 * before UCT is applied for selecting the best child.
+	 */
+	public static final int VISIT_THRESHOLD = 3;
+	
+	/**
+	 * How much time the ghosts have to think when advancing game
+	 * (-1 = infinite)
+	 */
+	public static int GHOST_THINK_TIME = -1;
+	
+	/**
+	 * The maze index at the root (used to check if level 
+	 * changes during simulation)
+	 */
+	public static int ROOT_MAZE_INDEX;
+	
+	/**
+	 * The amount of pills at the root (used to calculate value of nodes)
+	 */
+	public static int PILLS_AT_ROOT;
+	
+	/**
+	 * A boolean indicating whether the AI should focus on survival (true) or
+	 * not.
+	 */
+	public static boolean SURVIVAL;
+	
+	/**
+	 * Random generator used for getting random children.
+	 */
+	public static Random random = new Random();
+	
+	/**
+	 * The strategy of the ghosts being competed against.
+	 */
+	public static StarterGhosts ghostStrategy = new StarterGhosts();
+	
+	/**
+	 * The maximum number of iterations to run when searching.
+	 */
+	private final int MAX_ITERATIONS = 100;
+	
+	/**
+	 * The current iteration.
+	 */
 	private int currIteration;
-	private TreeNode tree;
-	private Game gs;
 	
-	public MCTS()
-	{
-	}
+	/**
+	 * The root of the search tree.
+	 */
+	private TreeNode root;
 	
-	public TreeNode search(Game gs)
+	public TreeNode search(Game game)
 	{
-//		expansions = 0;
-		this.gs = gs.copy();
-		this.tree = new TreeNode(gs.getPacmanLastMoveMade(), null, this.gs, 0, true);
+		root = new TreeNode(game.copy(), null, 0);
+		
+		PILLS_AT_ROOT = game.getNumberOfActivePills();
+		ROOT_MAZE_INDEX = game.getMazeIndex();
+		
+		TreeNode currNode = root;
+
 		currIteration = 0;
-			
-		TreeNode v = null;
-		double delta = 0.0;
-		
-//		changeTactics();
-		
-		while (!terminate(currIteration))
+		while (currIteration < MAX_ITERATIONS)
 		{
-//			pillsAtRoot = gs.getNumberOfPills();
-			pillsAtRoot = gs.getActivePillsIndices().length;
-			rootMaze = gs.getMazeIndex();
-			v = treePolicy(tree);
-			delta = defaultPolicy(v);
-			backup(v, delta);
+			// Selection + Expansion
+			currNode = selection();	
+			
+			// Playout / simulation
+			TreeNode tempNode = playout(currNode);
+			
+			// Backpropagation
+			backpropagate(currNode, tempNode);
 			currIteration++;
 		}
-		TreeNode bc = tree.bestChild();
 		
-		if (bc != null)
-		{
-//			if (tree.children.size() > 1)
-//			{
-//				// System.out.println(tree.children.size());
-//				for (TreeNode tn : tree.children)
-//				{
-//					System.out.println(tn.moveTo + " - Visited: " + tn.visits + " - Value: " + tn.totalValue);
-//				}
-//				System.out.println(bc.moveTo);
-////				System.out.println("Tree root: " + tree.visits);
-//				System.out.println("--------------------");
-//			}
-		}
+		this.changeTactics(root.bestChild());
 		
-		return bc;
-	}
-	
-	public void changeTactics()
-	{
-		for(GHOST ghost : GHOST.values())
-		{
-			if(gs.getGhostEdibleTime(ghost) == 0 && gs.getGhostLairTime(ghost) == 0)
-			{
-				double distanceToGhost = gs.getShortestPathDistance(
-						gs.getPacmanCurrentNodeIndex(), gs.getGhostCurrentNodeIndex(ghost));
-				
-				if (distanceToGhost < 30)
-				{
-					survival = true;
-					return;
-				}
-			}
-		}
-		
-		survival = false;
-	}
-	
-	private TreeNode treePolicy(TreeNode node)
-	{
-		TreeNode v = node;
-		
-		while (!v.isTerminalNode())
-		{
-			if (!v.isFullyExpanded())
-				return v.expand();
-			else
-				v = v.bestChild();
-		}
-		
-		return v;
-	}
-	
-	private double defaultPolicy(TreeNode v)
-	{
-		Legacy2TheReckoning sg = new Legacy2TheReckoning();
-		double result = 0.0;
-		TreeNode tempNode = v;
-		tempNode.depth = 0;
-		Game tempGame = v.getGameState().copy();
+		TreeNode bestNode = null;
+		double bestNodeScore = -100;
 
+		for (TreeNode tn : root.getChildren())
+			if (tn.getScore() > bestNodeScore)
+			{
+				bestNode = tn;
+				bestNodeScore = tn.getScore();
+			}
+		
+		return bestNode;
+	}
+	
+	/**
+	 * Selects the best child or expands the node.
+	 * Selection/Expansion from MCTS.
+	 * @return The newly expanded node or the best child.
+	 */
+	private TreeNode selection()
+	{
+		TreeNode tempNode = root;
+		
+		while(!tempNode.isTerminalNode())
+			if (!tempNode.isLeafNode())
+				tempNode = tempNode.bestChild();
+			else
+				return tempNode.expand();
+		
+		return tempNode;
+	}
+	
+	/**
+	 * Simulates a play starting at the given node.
+	 * @param node
+	 * @return The node that the simulation ends at.
+	 */
+	private TreeNode playout(TreeNode node)
+	{
+		TreeNode tempNode = node;
+		
 		while (!tempNode.isTerminalNode())
 		{
-			MOVE[] possibleMoves;
-			MOVE nextPMMove = MOVE.NEUTRAL;
-			if (pacManAtJunction(tempGame))
+			Game tempGame = tempNode.getGameState().copy();
+			MOVE[] possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
+					, tempGame.getPacmanLastMoveMade()
+					);
+			MOVE m = possibleMoves[random.nextInt(possibleMoves.length)];
+			
+			tempGame.advanceGame(m, MCTS.ghostStrategy.getMove(tempGame, GHOST_THINK_TIME));
+
+			while (!MCTS.pacManAtJunction(tempGame))
 			{
-				possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
-				 , tempGame.getPacmanLastMoveMade()
-						);
-				nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
-//				nextPMMove = tempNode.moveTo;
+				if (tempGame.wasPacManEaten())
+					return new TreeNode(tempGame, tempNode, tempNode.getPathLength() + 1.0);
+
+				tempGame.advanceGame(m, MCTS.ghostStrategy.getMove(tempGame, GHOST_THINK_TIME));
 			}
-//			else
-//				possibleMoves = tempGame.getPossibleMoves(tempGame.getPacmanCurrentNodeIndex()
-//						, tempGame.getPacmanLastMoveMade()
-//						);
-//			
-//			MOVE nextPMMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
-			
-			EnumMap<GHOST, MOVE> validGhostMoves = sg.getMove(tempGame, -1);
-//			EnumMap<GHOST, MOVE> validGhostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
-//			for (GHOST ghost : GHOST.values())
-//			{
-//				
-//				if (tempGame.getGhostEdibleTime(ghost) == 0 && tempGame.getGhostLairTime(ghost) == 0)
-//				{
-////					possibleMoves = tempGame.getPossibleMoves(tempGame.getGhostCurrentNodeIndex(ghost)
-////							, tempGame.getGhostLastMoveMade(ghost)
-////							);
-////					MOVE nextGMove = possibleMoves[MCTS.random.nextInt(possibleMoves.length)];
-//					
-//					MOVE nextGMove = tempGame.getNextMoveTowardsTarget(tempGame.getGhostCurrentNodeIndex(ghost)
-//							, tempGame.getPacmanCurrentNodeIndex()
-//							, DM.PATH);
-//					validGhostMoves.put(ghost, nextGMove);
-//				}
-//			}
 
-			tempGame.advanceGame(nextPMMove, validGhostMoves);
-			
-//			if (tempGame.getMazeIndex() != MCTS.rootMaze)
-//				break;
-			
-			tempNode = new TreeNode(nextPMMove, tempNode, tempGame, tempNode.depth + 1, false);
-//			result += tempNode.getReward();
-			// System.out.print(tempNode.getReward() + " | ");
+			tempNode = new TreeNode(tempGame, tempNode, tempNode.getPathLength() + 1.0);
 		}
-		// System.out.println();
-		// System.out.print(result);
-
-//		 return result;
-		// System.out.println(tempNode.getReward() + " | " + result);
-		return tempNode.getReward();
-	}
-	
-	private void backup(TreeNode v, double delta)
-	{
-		TreeNode currNode = v;
 		
-		while (currNode != null)
+		return tempNode;
+	}
+	
+	/**
+	 * Backpropagates the tree, using the given node as start point.
+	 * @param node
+	 */
+	public void backpropagate(TreeNode currNode, TreeNode endNode)
+	{
+		TreeNode tempNode = currNode;
+		double sSurvival = endNode.getRewardSurvival();
+		double sPill = endNode.getRewardPill();
+		
+		while (tempNode != null)
 		{
-			currNode.updateValues(delta);
-			currNode = currNode.parent;
+			tempNode.updateValues(sPill, sSurvival);
+			tempNode = tempNode.getParentNode();
 		}
 	}
 	
-	private boolean terminate(int i)
+	/**
+	 * Changes the tactic based on the given node.
+	 * @param node The node to use for changing tactics.
+	 */
+	private void changeTactics(TreeNode node)
 	{
-		return (i >= this.maxIterations);
+		if (node.getAvgSurvival() < SURVIVAL_THRESHOLD)
+			SURVIVAL = true;
+		else
+			SURVIVAL = false;
 	}
 	
+	/**
+	 * Checks if PacMan is at a junction (with corners being regarded 
+	 * as junctions).
+	 * @param game The game state to check for.
+	 * @return True if PacMan is at a junction;
+	 * 		   False otherwise.
+	 */
 	public static boolean pacManAtJunction(Game game)
 	{
-		boolean atJunction = false;
-		int pmIndex = game.getPacmanCurrentNodeIndex();
-		int[] juncts = game.getJunctionIndices();
-		for (int i : juncts)
-			if (i == pmIndex)
-				atJunction = true;
-		
-		return atJunction;
+		MOVE[] possibleMoves = game.getPossibleMoves(game.getPacmanCurrentNodeIndex());
+		List<MOVE> moveList = new ArrayList<MOVE>();
+		for (MOVE m : possibleMoves)
+		{
+			moveList.add(m);
+		}
+
+		moveList.remove(game.getPacmanLastMoveMade());
+		moveList.remove(game.getPacmanLastMoveMade().opposite());
+
+		return moveList.size() != 0;
 	}
 }

@@ -41,16 +41,9 @@ public class Backpropagator
 
 	public void train(TrainingSet ts)
 	{
-		// Initialize learning rate
 		learningRate = startingLearningRate;
-
-		// Current epoch
 		int epoch = 1;
-
-		// Current learning iteration
 		int learningIteration = 1;
-
-		// Terminating condition variables
 		TerminatingConditions tc;
 
 		// Average error variables

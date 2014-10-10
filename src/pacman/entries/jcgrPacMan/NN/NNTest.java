@@ -3,9 +3,6 @@
  */
 package pacman.entries.jcgrPacMan.NN;
 
-import dataRecording.DataSaverLoader;
-import dataRecording.DataTuple;
-import pacman.entries.jcgrPacMan.NN.training.PacManTrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingSet;
 import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;

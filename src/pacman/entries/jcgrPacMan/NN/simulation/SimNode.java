@@ -8,7 +8,6 @@ import java.util.List;
 
 import pacman.game.Game;
 import pacman.game.Constants.DM;
-import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 
 /**
@@ -149,25 +148,10 @@ public class SimNode
 		double max = Simulation.pillsAtRoot;
 		double eaten = Simulation.pillsAtRoot - gs.getNumberOfActivePills();
 
-//		if (min < 0)
-//			min = 0;
 		if (eaten < 0)
 			eaten = Simulation.pillsAtRoot;
 		
 		double normalized = (eaten - min) / (max - min);
-		
-		double ppEaten = Simulation.powerPillsAtRoot - gs.getNumberOfActivePowerPills();
-		if (ppEaten < 0)
-			ppEaten = Simulation.powerPillsAtRoot;
-		
-		if (ppEaten > 0)
-		{
-//			System.out.println("PP Eaten");
-			if (this.ppActive)
-				normalized /=  10.0;
-			else
-				normalized *= 10.0;
-		}
 		
 		return normalized;
 	}

@@ -19,8 +19,14 @@ import pacman.game.Constants.MOVE;
  */
 public class BTPacMan extends Controller<MOVE>
 {
+	/**
+	 * The root of the BT.
+	 */
 	private RootNode tree;
 	
+	/**
+	 * The context used by the BT.
+	 */
 	private PacManContext context;
 	
 	public BTPacMan()
@@ -29,6 +35,9 @@ public class BTPacMan extends Controller<MOVE>
 		createBT();
 	}
 	
+	/**
+	 * Creates the BT.
+	 */
 	private void createBT()
 	{
 		Selector root = new Selector("RootSelector");

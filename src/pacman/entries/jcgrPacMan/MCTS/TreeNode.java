@@ -1,237 +1,281 @@
-/**
- * 
- */
 package pacman.entries.jcgrPacMan.MCTS;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-
-import pacman.controllers.examples.Legacy2TheReckoning;
-import pacman.game.Constants.DM;
-import pacman.game.Constants.GHOST;
 import pacman.game.Constants.MOVE;
 import pacman.game.Game;
 
 /**
- * 
+ * A class that represents a node of the Monte Carlo search tree.
+ * A node is a junction, or a state where PacMan gets eaten.
  * 
  * @author Jacob
  */
 public class TreeNode
 {
-	public double visits;
-	public double totalValue;
-	public MOVE moveTo;
-	public TreeNode parent;
-	public int depth;
+	/**
+	 * The number of times the node has been visited.
+	 */
+	private int timesVisited;
+	
+	/**
+	 * The node that is a parent of this one.
+	 */
+	private TreeNode parentNode;
+	
+	/**
+	 * The children of this node.
+	 */
+	private List<TreeNode> children;
 
-	private Game gs;
-	public List<TreeNode> children;
+	/**
+	 * The game state of the node.
+	 */
+	private Game gameState;
+	
+	/**
+	 * The move that was made in order to get to this node.
+	 */
+	private MOVE moveTo;
+	
+	/**
+	 * The actions that can be taken from this node.
+	 */
 	private List<MOVE> actions;
-	private boolean[] actionsTried;
-	private EnumMap<GHOST, MOVE> ghostMoves;
 
-	public TreeNode(MOVE moveTo, TreeNode parent, Game gs, int depth, boolean root)
+	/**
+	 * The depth this node has in the tree.
+	 */
+	private double depthOfPathToNode;
+	
+	/**
+	 * The average pill score of this node's children.
+	 */
+	private double avgPillValue;
+
+	/**
+	 * The average survival score of this node's children.
+	 */
+	private double avgSurvivalValue;
+
+	/**
+	 * The highest pill score of any of this node's children.
+	 */
+	private double maxPillValue;
+
+	/**
+	 * The highest survival score of any of this node's children.
+	 */
+	private double maxSurvivalValue;
+
+	public TreeNode(Game game, TreeNode parent, double pathLength)
 	{
-		this.moveTo = moveTo;
-		this.parent = parent;
-		this.gs = gs;
-		this.depth = depth;
+		this.timesVisited = 0;
+		this.parentNode = parent;
 		this.children = new ArrayList<TreeNode>();
-		this.actions = new ArrayList<MOVE>();
 
-		MOVE[] possibleMoves = gs.getPossibleMoves(gs.getPacmanCurrentNodeIndex()
-				, gs.getPacmanLastMoveMade()
+		this.gameState = game.copy();
+		this.moveTo = gameState.getPacmanLastMoveMade();
+		this.actions = new ArrayList<MOVE>();
+		MOVE[] possibleActions = gameState.getPossibleMoves(gameState.getPacmanCurrentNodeIndex()
+				, gameState.getPacmanLastMoveMade()
 				);
-		for (MOVE m : possibleMoves)
+		for (MOVE m : possibleActions)
 			actions.add(m);
 
-		actionsTried = new boolean[actions.size()];
-		for (int action = 0; action < actions.size(); action++)
-			actionsTried[action] = false;
-
-		// The root node should not have any action happen.
-		if (!root)
-		{
-			Legacy2TheReckoning sg = new Legacy2TheReckoning();
-			ghostMoves = sg.getMove(gs, -1);
-//			ghostMoves = new EnumMap<GHOST, MOVE>(GHOST.class);
-//			for (GHOST ghost : GHOST.values())
-//				ghostMoves.put(ghost, gs.getGhostLastMoveMade(ghost));
-
-			gs.advanceGame(this.moveTo, ghostMoves);
-		}
-
-		this.totalValue = 0.0;
-		this.visits = 1;
-	}
-
-	public TreeNode expand()
-	{
-//		for (MOVE m : actions)
-//		{
-//			TreeNode expandedNode = new TreeNode(m, this, gs.copy(), this.depth + 1, false);
-//			children.add(expandedNode);
-//		}
-//		return this.bestChild();
-		MOVE[] untriedActions = getUntriedActions();
-		MOVE nextTry = untriedActions[MCTS.random.nextInt(untriedActions.length)];
-		// System.out.println(nextTry.toString() + " was added");
-		TreeNode expandedNode = new TreeNode(nextTry, this, gs.copy(), this.depth + 1, false);
-		children.add(expandedNode);
-
-		for (int i = 0; i < actions.size(); i++)
-			if (actions.get(i) == nextTry)
-				actionsTried[i] = true;
-
-		return expandedNode;
-	}
-
-	private MOVE[] getUntriedActions()
-	{
-		List<MOVE> utActions = new ArrayList<MOVE>();
-
-		for (int i = 0; i < actions.size(); i++)
-			if (!actionsTried[i])
-				utActions.add(actions.get(i));
-
-		MOVE[] result = new MOVE[utActions.size()];
-		for (int i = 0; i < utActions.size(); i++)
-			result[i] = utActions.get(i);
-
-		return result;
+		this.depthOfPathToNode = pathLength;
+		this.avgPillValue = 0.0;
+		this.maxPillValue = 0.0;
+		this.avgSurvivalValue = 0.0;
+		this.maxSurvivalValue = 0.0;
 	}
 
 	/**
-	 * Selects the node's best child (randomly chosen if none of them have been visited)
-	 * 
-	 * @return
+	 * Gets the best child of the node.
 	 */
 	public TreeNode bestChild()
 	{
-		TreeNode selected = null;
-		double bestValue = -100000.0;
+		// If there are children that have not been visited at least
+		// VISIT_THRESHOLD times, visit one of them.
+		List<TreeNode> unvisitedChildren = new ArrayList<TreeNode>();
+		for (TreeNode child : children)
+			if (child.timesVisited < MCTS.VISIT_THRESHOLD)
+				unvisitedChildren.add(child);
 
-//		List<TreeNode> nodes = new ArrayList<TreeNode>();
-//		
-//		for (TreeNode child : children)
-//			if (child.visits < 3)
-//				nodes.add(child);
-//		
-//		if (nodes.size() > 0)
-//			return nodes.get(MCTS.random.nextInt(nodes.size()));
+		if (unvisitedChildren.size() > 0)
+			return unvisitedChildren.get(MCTS.random.nextInt(unvisitedChildren.size()));
+		
+		// Find the best child based on UCT value.
+		TreeNode bestChild = null;
+		double highestValue = -10000;
 		
 		for (TreeNode child : children)
 		{
-//			double uctValue = ((child.totalValue / child.visits) 
-//					+ (MCTS.EXPLORATION_CONSTANT 
-//						* Math.sqrt(2 * (Math.log(this.visits))	/ child.visits)));
-			double uctValue = ((child.totalValue) 
-					+ (MCTS.EXPLORATION_CONSTANT 
-						* Math.sqrt((Math.log(this.visits))	/ child.visits)));
+			double uctValue = (child.getScore()
+					+ (MCTS.EXPLORATION_CONSTANT * (Math.sqrt(Math.log(this.timesVisited) / (child.timesVisited))))
+					);
 			
-//			uctValue += MCTS.EXPLORATION_CONSTANT * MCTS.random.nextDouble();
-			
-			if (uctValue > bestValue)
+			if (uctValue > highestValue)
 			{
-				selected = child;
-				bestValue = uctValue;
+				bestChild = child;
+				highestValue = uctValue;
 			}
 		}
 
-		return selected;
+		return bestChild;
 	}
 
-	public double getReward()
+	/**
+	 * Expands the node and returns one of the children created.
+	 */
+	public TreeNode expand()
 	{
-		double result = 0.0;
-
-//		// Was PacMan eaten
-		if (gs.wasPacManEaten())
+		for (MOVE m : actions)
 		{
-//			System.out.println("Retard coming through, going " + this.moveTo);
-			result += 0.0;
+			Game tempGame = gameState.copy();
+			tempGame.advanceGame(m, MCTS.ghostStrategy.getMove(tempGame, MCTS.GHOST_THINK_TIME));
+
+			while (!MCTS.pacManAtJunction(tempGame))
+			{
+				if (tempGame.wasPacManEaten())
+					break;
+
+				tempGame.advanceGame(m, MCTS.ghostStrategy.getMove(tempGame, MCTS.GHOST_THINK_TIME));
+			}
+
+			TreeNode newNode = new TreeNode(tempGame, this, this.depthOfPathToNode + 1);
+			children.add(newNode);
 		}
-		else
-			result += 1.0;
 
-			// Normalizing pills eaten
-//			double min = 0;
-//			double max = MCTS.pillsAtRoot;
-//			double eaten = max - gs.getActivePillsIndices().length;
-//
-//			if (eaten < min)
-//				eaten = max;
-//			
-////			System.out.println(eaten);
-//			
-//			if (eaten < 0)
-//			{
-//				System.out.println("Wat! " + eaten);
-//				System.out.println(max);
-//				System.out.println(gs.getActivePillsIndices().length);
-//				System.out.println("-------------------");
-//			}
-//			
-//			double normalized = (eaten - min) / (max - min);
-//				result += normalized;
-//		
-//		return result;
-		
-//		if (gs.getScore() > 0)
-			return result * (gs.getScore() / 1000.0);
-//		return gs.getScore() / 1000;
-		
-//		double closestGhost = 50;
-////		System.out.println(Arrays.toString(GHOST.values()));
-//		for (GHOST ghost : GHOST.values())
-//		{
-////			System.out.println(ghost == null);
-//			if(gs.getGhostEdibleTime(ghost) == 0 && gs.getGhostLairTime(ghost) == 0)
-//			{
-//				double dist = gs.getDistance(gs.getPacmanCurrentNodeIndex()
-//						, gs.getGhostCurrentNodeIndex(ghost)
-//						, DM.PATH);
-//				if (dist < closestGhost)
-//					closestGhost = dist;
-//			}
-//		}
-//		
-//		return closestGhost;
+		return this.bestChild();
 	}
-
-	public void updateValues(double value)
+	
+	/**
+	 * Gets the score of the node.
+	 */
+	public double getScore()
 	{
-		this.visits++;
-		this.totalValue += value;
-		// System.out.print("(" + visits + ", " + totalValue + ") - ");
+		if (MCTS.SURVIVAL)
+			return maxSurvivalValue;
+		// If there are no pills nearby, just use the survival score.
+		else if (maxPillValue == 0.0)
+			return maxSurvivalValue;
+		else
+			return maxSurvivalValue * maxPillValue;
+	}
+	
+	/**
+	 * Gets the survival reward value based on how far PacMan gets
+	 * before it dies (see 4.4 in paper)
+	 */
+	public double getRewardSurvival()
+	{
+		// If PacMan is not eaten, return max value
+		if (!gameState.wasPacManEaten())
+			return 1.0;
+
+		// ... else return the normalized value based on how deep the node is.
+		double min = 0;
+		double max = MCTS.MAX_PATH_DEPTH;
+
+		return (this.depthOfPathToNode - min) / (max - min);
+	}
+	
+	/**
+	 * Gets the pill reward value based on how many pills PacMan 
+	 * has eaten at this node. (see 4.4 in paper)
+	 */
+	public double getRewardPill()
+	{
+		if (gameState.getMazeIndex() != MCTS.ROOT_MAZE_INDEX)
+			return 1.0;
+	
+		double min = 0;
+		double max = MCTS.PILLS_AT_ROOT;
+		double eaten = MCTS.PILLS_AT_ROOT - gameState.getNumberOfActivePills();
+
+		if (eaten < 0)
+			eaten = MCTS.PILLS_AT_ROOT;
+		
+		double normalized = (eaten - min) / (max - min);		
+		return normalized;
+	}
+	
+	/**
+	 * Updates the various score values (see 4.1 in paper)
+	 * @param sPill The pill reward value.
+	 * @param sSurvival The survival reward value.
+	 */
+	public void updateValues(double sPill, double sSurvival)
+	{
+		timesVisited++;
+
+		double average = (children.size() == 0 ? 1 : children.size());
+
+		double sumMaxPill = 0;
+		double sumMaxSurvival = 0;
+
+		for (TreeNode child : children)
+		{
+			sumMaxPill += child.maxPillValue;
+			sumMaxSurvival += child.maxSurvivalValue;
+		}
+
+		avgPillValue = sumMaxPill / average;
+		avgSurvivalValue = sumMaxSurvival / average;
+		
+		if(sPill > maxPillValue)
+			maxPillValue = sPill;
+		if (sSurvival > maxSurvivalValue)
+			maxSurvivalValue = sSurvival;
+	}
+	
+	public TreeNode getParentNode()
+	{
+		return this.parentNode;
+	}
+	
+	public List<TreeNode> getChildren()
+	{
+		return this.children;
+	}
+	
+	public double getAvgSurvival()
+	{
+		return this.avgSurvivalValue;
+	}
+	
+	public double getPathLength()
+	{
+		return this.depthOfPathToNode;
+	}
+	
+	public MOVE getMoveTo()
+	{
+		return this.moveTo;
 	}
 	
 	public Game getGameState()
 	{
-		return this.gs;
+		return this.gameState;
 	}
 
+	/**
+	 * Checks if this node is a terminal node (PacMan is eaten,
+	 * the depth is higher than allowed or a new level is reached)
+	 * @return True if any of the above conditions is fulfilled;
+	 * 		   False otherwise.
+	 */
 	public boolean isTerminalNode()
 	{
-		return (gs.wasPacManEaten() 
-				|| depthCheck()
-				|| (gs.getMazeIndex() != MCTS.rootMaze)
-//				|| (gs.getActivePillsIndices().length == 0 
-//					&& gs.getActivePowerPillsIndices().length == 0)
+		return (gameState.wasPacManEaten()
+				|| (depthOfPathToNode >= MCTS.MAX_PATH_DEPTH)
+				|| (gameState.getMazeIndex() != MCTS.ROOT_MAZE_INDEX)
 				);
 	}
-	
-	private boolean depthCheck()
-	{
-		return depth > MCTS.MAX_DEPTH;
-	}
 
-	public boolean isFullyExpanded()
+	public boolean isLeafNode()
 	{
-		return (children.size() == actions.size());
+		return (children.size() != actions.size());
 	}
 }
