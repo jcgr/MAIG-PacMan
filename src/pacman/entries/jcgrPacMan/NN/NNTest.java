@@ -5,10 +5,9 @@ package pacman.entries.jcgrPacMan.NN;
 
 import pacman.entries.jcgrPacMan.NN.training.TrainingData;
 import pacman.entries.jcgrPacMan.NN.training.TrainingSet;
-import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
 
 /**
- * 
+ * A class for testing if the backpropagation works.
  * 
  * @author Jacob
  */
@@ -22,17 +21,20 @@ public class NNTest
 	 */
 	public static void main(String[] args)
 	{
-		NNPacMan.newcontroller();
-		System.out.println("Done training");
-//		System.out.println("=====");
-//		AND();
-//		System.out.println("=====");
-//		XOR();
-//		System.out.println("=====");
-//		Test();
-//		classificationByBackpropagationTest();
+//		NNPacMan.newcontroller();
+//		System.out.println("Done training");
+		System.out.println("=====");
+		AND();
+		System.out.println("=====");
+		XOR();
+		System.out.println("=====");
+		classificationByBackpropagationTest();
+		System.out.println("=====");
 	}
 	
+	/**
+	 * Teaches a NN the AND problem and prints the final values.
+	 */
 	private static void AND()
 	{
 		nn = new NeuralNetwork("AND");
@@ -109,6 +111,9 @@ public class NNTest
 		System.out.println("AND (1, 1) = " + result);
 	}
 	
+	/**
+	 * Teaches a NN the AND problem and prints the final values.
+	 */
 	private static void XOR()
 	{
 		nn = new NeuralNetwork("XOR");
@@ -229,12 +234,12 @@ public class NNTest
 		// Hidden neurons
 		Neuron h1 = new Neuron();
 		double[] h1weights =
-		{ -0.4, 0.2, 0.4, -0.5 };
+			{ -0.4, 0.2, 0.4, -0.5 };
 		h1.number = 4;
 
 		Neuron h2 = new Neuron();
 		double[] h2weights =
-		{ 0.2, -0.3, 0.1, 0.2 };
+			{ 0.2, -0.3, 0.1, 0.2 };
 		h2.number = 5;
 
 		// Hidden layer
@@ -245,7 +250,7 @@ public class NNTest
 		// Output neuron
 		Neuron o1 = new Neuron();
 		double[] o1weights =
-		{ 0.1, -0.3, -0.2 };
+			{ 0.1, -0.3, -0.2 };
 		o1.number = 6;
 
 		// Output layer
@@ -261,9 +266,9 @@ public class NNTest
 		TrainingSet ts = new TrainingSet();
 		TrainingData td = new TrainingData(3, 1);
 		double[] in =
-		{ 1, 0, 1 };
+			{ 1, 0, 1 };
 		double[] out =
-		{ 1 };
+			{ 1 };
 		td.setData(in, out);
 		ts.AddTrainingData(td);
 

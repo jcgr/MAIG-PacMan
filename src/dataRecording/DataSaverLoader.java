@@ -10,7 +10,7 @@ import pacman.game.util.*;
  */
 public class DataSaverLoader {
 	
-	private static String FileName = "trainingData.txt";
+	private static String FileName = "trainingData003.txt";
 	
 	public static void SavePacManData(DataTuple data)
 	{

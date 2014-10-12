@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * A class that represents an entire neural network.
  * 
+ * Based on https://github.com/vivin/DigitRecognizingNeuralNetwork/tree/master/src/main/java/net/vivin/neural
+ * 
  * @author Jacob
  */
 public class NeuralNetwork
@@ -55,7 +57,7 @@ public class NeuralNetwork
 	public static NeuralNetwork createSingleHiddenLayerNeuralNetwork(String name, int numberOfInputNodes,
 			int numberOfOutputNodes, int numberOfHiddenNodes)
 	{
-		NeuralNetwork neuralNetowrk = new NeuralNetwork(name);
+		NeuralNetwork neuralNetwork = new NeuralNetwork(name);
 
 		Neuron bias = new Neuron();
 		bias.setOutput(1.0);
@@ -76,11 +78,11 @@ public class NeuralNetwork
 			outputLayer.addNeuron(new Neuron());
 
 		// Add the layers to the neural network
-		neuralNetowrk.addLayer(inputLayer);
-		neuralNetowrk.addLayer(hiddenLayer);
-		neuralNetowrk.addLayer(outputLayer);
+		neuralNetwork.addLayer(inputLayer);
+		neuralNetwork.addLayer(hiddenLayer);
+		neuralNetwork.addLayer(outputLayer);
 
-		return neuralNetowrk;
+		return neuralNetwork;
 	}
 
 	/**

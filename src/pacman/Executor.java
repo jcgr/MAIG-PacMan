@@ -24,10 +24,13 @@ import pacman.controllers.examples.RandomNonRevPacMan;
 import pacman.controllers.examples.RandomPacMan;
 import pacman.controllers.examples.StarterGhosts;
 import pacman.controllers.examples.StarterPacMan;
-import pacman.entries.jcgrPacMan.BTPacMan.BTPacMan;
-import pacman.entries.jcgrPacMan.MCTSPacMan.MCTSPacMan;
-import pacman.entries.jcgrPacMan.NNPacMan.NNPacMan;
-import pacman.entries.jcgrPacMan.NNPacMan.SimPacMan;
+import pacman.entries.jcgrPacMan.Controllers.BTPacMan;
+import pacman.entries.jcgrPacMan.Controllers.EAPacMan;
+import pacman.entries.jcgrPacMan.Controllers.MCTSPacMan;
+import pacman.entries.jcgrPacMan.Controllers.NNPacMan;
+import pacman.entries.jcgrPacMan.DataRecording.JcgrDataCollectorController;
+import pacman.entries.jcgrPacMan.EA.Evolution;
+import pacman.entries.jcgrPacMan.EA.EvolutionTestController;
 import pacman.game.Game;
 import pacman.game.GameView;
 import static pacman.game.Constants.*;
@@ -51,22 +54,22 @@ public class Executor
 		Executor exec=new Executor();
 		boolean visual = true;
 		boolean trials = false;
-		trials = true;
+//		trials = true;
 		
 		//run multiple games in batch mode - good for testing.
 		if (trials)
 		{
 			int numTrials = 100;
-			exec.runExperiment(new MCTSPacMan(), new StarterGhosts(), numTrials);
+			exec.runExperiment(new MCTSPacMan(), new Legacy2TheReckoning(), numTrials);
 			return;
 		}
 		 
 		
 		
 		//run a game in synchronous mode: game waits until controllers respond.
-//		int delay=5;
 //		boolean visual=true;
-//		exec.runGame(new BTPacMan(),new RandomGhosts(),visual,delay);
+//		int delay=50;
+//		exec.runGame(new MCTSPacMan(),new Legacy2TheReckoning(),visual,delay);
   		 
 		
 		if (!trials)
@@ -81,8 +84,11 @@ public class Executor
 //			exec.runGameTimed(new DataCollectorController(new KeyBoardInput()), new StarterGhosts(), visual);
 //			exec.runGameTimed(new NNPacMan(),new StarterGhosts(),visual);
 //			exec.runGameTimed(new BTPacMan(),new StarterGhosts(),visual);	
-//			exec.runGameTimed(new MCTSPacMan(),new StarterGhosts(),visual);
-//			exec.runGameTimed(new SimPacMan(),new StarterGhosts(),visual);
+//			exec.runGameTimed(new MCTSPacMan(),new Legacy2TheReckoning(),visual);
+//			exec.runGameTimed(new JcgrDataCollectorController(new KeyBoardInput()),new StarterGhosts(),visual);
+//			exec.runGameTimed(new EAPacMan(4, 5, 4),new StarterGhosts(),visual);	
+			Evolution evo = new Evolution();
+			evo.evolveAndSave();
 //		*/
 		}
 		
@@ -113,7 +119,7 @@ public class Executor
      * @param ghostController The Ghosts controller
      * @param trials The number of trials to be executed
      */
-    public void runExperiment(Controller<MOVE> pacManController,Controller<EnumMap<GHOST,MOVE>> ghostController,int trials)
+    public void runExperiment(Controller<MOVE> pacManController, Controller<EnumMap<GHOST,MOVE>> ghostController, int trials)
     {
     	double avgScore=0;
     	

@@ -7,6 +7,8 @@ package pacman.entries.jcgrPacMan.NN;
  * A class that represents a connection to a neuron with a weight for the
  * connection.
  * 
+ * Based on https://github.com/vivin/DigitRecognizingNeuralNetwork/tree/master/src/main/java/net/vivin/neural
+ * 
  * @author Jacob
  */
 public class Synapse

@@ -1,9 +1,5 @@
 package dataRecording;
 
-import java.util.List;
-
-import pacman.entries.jcgrPacMan.NN.simulation.SimNode;
-import pacman.entries.jcgrPacMan.NN.simulation.Simulation;
 import pacman.game.Constants;
 import pacman.game.Constants.DM;
 import pacman.game.Constants.GHOST;
@@ -45,11 +41,6 @@ public class DataTuple {
 	public int numberOfNodesInLevel;
 	public int numberOfTotalPillsInLevel;
 	public int numberOfTotalPowerPillsInLevel;
-
-	public double moveUpValue;
-	public double moveRightValue;
-	public double moveDownValue;
-	public double moveLeftValue;
 	
 	public DataTuple(Game game, MOVE move)
 	{
@@ -98,35 +89,6 @@ public class DataTuple {
 		this.numberOfNodesInLevel = game.getNumberOfNodes();
 		this.numberOfTotalPillsInLevel = game.getNumberOfPills();
 		this.numberOfTotalPowerPillsInLevel = game.getNumberOfPowerPills();
-
-		Simulation sim = new Simulation();
-		List<SimNode> nodes = sim.searchList(game, 60);
-		
-		this.moveUpValue = 0.0;
-		this.moveRightValue = 0.0;
-		this.moveDownValue = 0.0;
-		this.moveLeftValue = 0.0;
-		
-		for (SimNode n : nodes)
-		{
-			switch(n.moveTo)
-			{
-			case UP:
-				this.moveUpValue = n.getScore();
-				break;
-			case RIGHT:
-				this.moveRightValue = n.getScore();
-				break;
-			case DOWN:
-				this.moveDownValue = n.getScore();
-				break;
-			case LEFT:
-				this.moveLeftValue = n.getScore();
-				break;
-			case NEUTRAL:
-				break;
-			}
-		}
 	}
 	
 	public DataTuple(String data)
@@ -159,10 +121,6 @@ public class DataTuple {
 		this.numberOfNodesInLevel = Integer.parseInt(dataSplit[22]);
 		this.numberOfTotalPillsInLevel = Integer.parseInt(dataSplit[23]);
 		this.numberOfTotalPowerPillsInLevel = Integer.parseInt(dataSplit[24]);
-		this.moveUpValue = Double.parseDouble(dataSplit[25]);
-		this.moveRightValue = Double.parseDouble(dataSplit[26]);
-		this.moveDownValue = Double.parseDouble(dataSplit[27]);
-		this.moveLeftValue = Double.parseDouble(dataSplit[28]);
 	}
 	
 	public String getSaveString()
@@ -194,10 +152,6 @@ public class DataTuple {
 		stringbuilder.append(this.numberOfNodesInLevel+";");
 		stringbuilder.append(this.numberOfTotalPillsInLevel+";");
 		stringbuilder.append(this.numberOfTotalPowerPillsInLevel+";");
-		stringbuilder.append(this.moveUpValue+";");
-		stringbuilder.append(this.moveRightValue+";");
-		stringbuilder.append(this.moveDownValue+";");
-		stringbuilder.append(this.moveLeftValue+";");
 		
 		return stringbuilder.toString();
 	}

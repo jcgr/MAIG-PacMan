@@ -1,10 +1,11 @@
 /**
  * 
  */
-package pacman.entries.jcgrPacMan.BTPacMan;
+package pacman.entries.jcgrPacMan.Controllers;
 
 import pacman.controllers.Controller;
 import pacman.entries.jcgrPacMan.BT.*;
+import pacman.entries.jcgrPacMan.BTPacMan.PacManContext;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.EatEdibleGhost;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.FindPathToTarget;
 import pacman.entries.jcgrPacMan.BTPacMan.nodes.FindPossibleTargets;

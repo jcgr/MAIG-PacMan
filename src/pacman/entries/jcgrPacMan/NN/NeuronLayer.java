@@ -9,6 +9,8 @@ import java.util.List;
 /**
  * A class that represents a layer of neurons.
  * 
+ * Based on https://github.com/vivin/DigitRecognizingNeuralNetwork/tree/master/src/main/java/net/vivin/neural
+ * 
  * @author Jacob
  */
 public class NeuronLayer

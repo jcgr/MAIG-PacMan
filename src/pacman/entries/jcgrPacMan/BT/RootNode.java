@@ -13,6 +13,7 @@ public class RootNode extends Node
 	/**
 	 * The object the root node is attached to.
 	 */
+	@SuppressWarnings("unused")
 	private Object entity;
 	
 	/**

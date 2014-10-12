@@ -9,6 +9,8 @@ import java.util.ArrayList;
 /**
  * A class that represents a neuron in a neural network.
  * 
+ * Based on https://github.com/vivin/DigitRecognizingNeuralNetwork/tree/master/src/main/java/net/vivin/neural
+ * 
  * @author Jacob
  */
 public class Neuron
@@ -78,7 +80,17 @@ public class Neuron
 	public void activate()
 	{
 		calculateWeightedSum();
-		this.output = Helper.sigmoidActivate(weightedSum);
+		this.output = sigmoidActivate(weightedSum);
+	}
+
+	/**
+	 * Calculates the sigmoid value, gives a certain input and a reponse.
+	 * @param inputValue The input value.
+	 * @return The sigmoid value.
+	 */
+	private double sigmoidActivate(double inputValue)
+	{
+		return 1.0 / (1.0 + Math.exp(-1.0 * inputValue));
 	}
 
 	/**

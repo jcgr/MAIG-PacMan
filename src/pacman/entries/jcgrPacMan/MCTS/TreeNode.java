@@ -16,7 +16,7 @@ public class TreeNode
 	/**
 	 * The number of times the node has been visited.
 	 */
-	private int timesVisited;
+	public int timesVisited;
 	
 	/**
 	 * The node that is a parent of this one.
@@ -47,11 +47,6 @@ public class TreeNode
 	 * The depth this node has in the tree.
 	 */
 	private double depthOfPathToNode;
-	
-	/**
-	 * The average pill score of this node's children.
-	 */
-	private double avgPillValue;
 
 	/**
 	 * The average survival score of this node's children.
@@ -68,7 +63,13 @@ public class TreeNode
 	 */
 	private double maxSurvivalValue;
 
-	public TreeNode(Game game, TreeNode parent, double pathLength)
+	/**
+	 * Creates a new instance of the TreeNode class with the given values.
+	 * @param game The game state belonging to the node.
+	 * @param parent The parent of the node.
+	 * @param pathDepth The depth of the path leading to this node.
+	 */
+	public TreeNode(Game game, TreeNode parent, double pathDepth)
 	{
 		this.timesVisited = 0;
 		this.parentNode = parent;
@@ -78,13 +79,12 @@ public class TreeNode
 		this.moveTo = gameState.getPacmanLastMoveMade();
 		this.actions = new ArrayList<MOVE>();
 		MOVE[] possibleActions = gameState.getPossibleMoves(gameState.getPacmanCurrentNodeIndex()
-				, gameState.getPacmanLastMoveMade()
+//				, gameState.getPacmanLastMoveMade()
 				);
 		for (MOVE m : possibleActions)
 			actions.add(m);
 
-		this.depthOfPathToNode = pathLength;
-		this.avgPillValue = 0.0;
+		this.depthOfPathToNode = pathDepth;
 		this.maxPillValue = 0.0;
 		this.avgSurvivalValue = 0.0;
 		this.maxSurvivalValue = 0.0;
@@ -155,6 +155,7 @@ public class TreeNode
 	 */
 	public double getScore()
 	{
+		
 		if (MCTS.SURVIVAL)
 			return maxSurvivalValue;
 		// If there are no pills nearby, just use the survival score.
@@ -170,6 +171,9 @@ public class TreeNode
 	 */
 	public double getRewardSurvival()
 	{
+		// If we switch level, the survival rate is max
+		if (gameState.getMazeIndex() != MCTS.ROOT_MAZE_INDEX)
+			return 1.0;
 		// If PacMan is not eaten, return max value
 		if (!gameState.wasPacManEaten())
 			return 1.0;
@@ -212,16 +216,16 @@ public class TreeNode
 
 		double average = (children.size() == 0 ? 1 : children.size());
 
-		double sumMaxPill = 0;
+//		double sumMaxPill = 0;
 		double sumMaxSurvival = 0;
 
 		for (TreeNode child : children)
 		{
-			sumMaxPill += child.maxPillValue;
+//			sumMaxPill += child.maxPillValue;
 			sumMaxSurvival += child.maxSurvivalValue;
 		}
 
-		avgPillValue = sumMaxPill / average;
+//		avgPillValue = sumMaxPill / average;
 		avgSurvivalValue = sumMaxSurvival / average;
 		
 		if(sPill > maxPillValue)
